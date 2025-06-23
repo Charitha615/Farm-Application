@@ -8,6 +8,7 @@ import Register from './components/Auth/Register';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
+import FarmerInsurancePage from './pages/FarmerInsurancePage';
 import ProfileEdit from './pages/ProfileEdit';
 
 import LandList from './pages/LandList';
@@ -35,6 +36,7 @@ function App() {
 
 
             <Route path="/profile" element={<Profile />} />
+            <Route path="/farmer/insurance" element={<FarmerInsurancePage />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
 
             <Route path="/lands" element={<LandList />} />

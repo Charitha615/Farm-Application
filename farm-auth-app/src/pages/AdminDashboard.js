@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { 
-  DashboardOutlined, 
-  UserOutlined, 
-  FileTextOutlined, 
-  InsuranceOutlined, 
-  AlertOutlined, 
+import InspectorManagement from './InspectorManagement';
+import {
+  DashboardOutlined,
+  UserOutlined,
+  FileTextOutlined,
+  InsuranceOutlined,
+  AlertOutlined,
   BarChartOutlined,
   TeamOutlined,
   BellOutlined,
@@ -15,19 +16,19 @@ import {
   EditOutlined,
   DeleteOutlined
 } from '@ant-design/icons';
-import { 
-  Layout, 
-  Menu, 
-  Card, 
-  Statistic, 
-  Table, 
-  Button, 
-  Modal, 
-  Form, 
-  Input, 
-  Select, 
-  DatePicker, 
-  notification, 
+import {
+  Layout,
+  Menu,
+  Card,
+  Statistic,
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  notification,
   Spin,
   Tag,
   Divider,
@@ -44,11 +45,13 @@ const { Header, Sider, Content } = Layout;
 const { Option } = Select;
 const { TextArea } = Input;
 
-// Base URLs for API
-const baseFarmerURL = 'http://localhost/firebase-auth/api/farmers';
-const baseInsuranceURL = 'http://localhost/firebase-auth/api/insurance';
-const baseInspectorURL = 'http://localhost/firebase-auth/api/inspectors';
 
+
+// Base URLs for API
+const API_BASE_URL = 'http://localhost/firebase-auth/api';
+const FARMERS_URL = `${API_BASE_URL}/farmers/profile/farmer.php`;
+const INSURANCE_URL = `${API_BASE_URL}/insurance/insurance_policies.php`;
+const INSURANCE_APPLICATIONS_URL = `${API_BASE_URL}/insurance/insurance_applications.php`;
 
 // Dashboard Overview Component
 const DashboardOverview = () => (
@@ -84,8 +87,10 @@ const FarmerManagement = () => {
     const fetchFarmers = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${baseFarmerURL}/profile/farmer.php?public=all_farmers`);
-        setFarmers(response.data);
+        const response = await axios.get(`${FARMERS_URL}?public=all_farmers`);
+        // Convert object to array if needed
+        const farmersData = Array.isArray(response.data) ? response.data : Object.values(response.data);
+        setFarmers(farmersData);
       } catch (error) {
         notification.error({ message: 'Failed to fetch farmers', description: error.message });
       } finally {
@@ -101,30 +106,32 @@ const FarmerManagement = () => {
       setModalLoading(true);
       if (selectedFarmer) {
         // Update existing farmer
-        await axios.put(`${baseFarmerURL}/profile`, {
+        await axios.put(FARMERS_URL, {
           ...values,
           uid: selectedFarmer.uid
         });
         notification.success({ message: 'Farmer updated successfully' });
       } else {
-        // Register new farmer
-        await axios.post(`${baseFarmerURL}/register`, {
+        // Register new farmer - Note: This endpoint might need to be adjusted based on your API
+        await axios.post(`${API_BASE_URL}/farmers/register.php`, {
           ...values,
           password: 'defaultPassword123',
           language: 'en'
         });
         notification.success({ message: 'Farmer registered successfully' });
       }
-      
-      const response = await axios.get(`${baseFarmerURL}/profile/farmer.php?public=all_farmers`);
-      setFarmers(response.data);
-      
+
+      // Refresh farmers list
+      const response = await axios.get(`${FARMERS_URL}?public=all_farmers`);
+      const farmersData = Array.isArray(response.data) ? response.data : Object.values(response.data);
+      setFarmers(farmersData);
+
       setIsModalVisible(false);
       setSelectedFarmer(null);
     } catch (error) {
-      notification.error({ 
-        message: `Failed to ${selectedFarmer ? 'update' : 'register'} farmer`, 
-        description: error.response?.data?.message || error.message 
+      notification.error({
+        message: `Failed to ${selectedFarmer ? 'update' : 'register'} farmer`,
+        description: error.response?.data?.message || error.message
       });
     } finally {
       setModalLoading(false);
@@ -133,18 +140,20 @@ const FarmerManagement = () => {
 
   const handleStatusChange = async (uid, newStatus) => {
     try {
-      await axios.put(`${baseFarmerURL}/profile`, {
+      await axios.put(FARMERS_URL, {
         uid,
         status: newStatus
       });
       notification.success({ message: `Farmer status updated to ${newStatus}` });
-      
-      const response = await axios.get(`${baseFarmerURL}/profile/farmer.php?public=all_farmers`);
-      setFarmers(response.data);
+
+      // Refresh farmers list
+      const response = await axios.get(`${FARMERS_URL}?public=all_farmers`);
+      const farmersData = Array.isArray(response.data) ? response.data : Object.values(response.data);
+      setFarmers(farmersData);
     } catch (error) {
-      notification.error({ 
-        message: 'Failed to update farmer status', 
-        description: error.response?.data?.message || error.message 
+      notification.error({
+        message: 'Failed to update farmer status',
+        description: error.response?.data?.message || error.message
       });
     }
   };
@@ -168,56 +177,56 @@ const FarmerManagement = () => {
     }, [farmer, form]);
 
     return (
-      <Modal 
-        title={farmer ? "Edit Farmer" : "Add Farmer"} 
-        open={visible} 
+      <Modal
+        title={farmer ? "Edit Farmer" : "Add Farmer"}
+        open={visible}
         onCancel={onCancel}
         footer={null}
         forceRender
       >
-        <Form 
+        <Form
           form={form}
           layout="vertical"
           onFinish={onSave}
         >
-          <Form.Item 
-            label="Full Name" 
+          <Form.Item
+            label="Full Name"
             name="full_name"
             rules={[{ required: true, message: 'Please input full name!' }]}
           >
             <Input />
           </Form.Item>
-          <Form.Item 
-            label="NIC" 
+          <Form.Item
+            label="NIC"
             name="nic"
             rules={[{ required: true, message: 'Please input NIC!' }]}
           >
             <Input />
           </Form.Item>
-          <Form.Item 
-            label="Email" 
+          <Form.Item
+            label="Email"
             name="email"
             rules={[{ required: true, message: 'Please input email!' }]}
           >
             <Input type="email" />
           </Form.Item>
-          <Form.Item 
-            label="Phone" 
+          <Form.Item
+            label="Phone"
             name="phone"
             rules={[{ required: true, message: 'Please input phone number!' }]}
           >
             <Input />
           </Form.Item>
-          <Form.Item 
-            label="Address" 
+          <Form.Item
+            label="Address"
             name="address"
             rules={[{ required: true, message: 'Please input address!' }]}
           >
             <Input.TextArea />
           </Form.Item>
           {farmer && (
-            <Form.Item 
-              label="Status" 
+            <Form.Item
+              label="Status"
               name="status"
               rules={[{ required: true, message: 'Please select status!' }]}
             >
@@ -253,8 +262,8 @@ const FarmerManagement = () => {
             { title: 'NIC', dataIndex: 'nic' },
             { title: 'Email', dataIndex: 'email' },
             { title: 'Phone', dataIndex: 'phone' },
-            { 
-              title: 'Status', 
+            {
+              title: 'Status',
               dataIndex: 'status',
               render: (status, record) => (
                 <Select
@@ -271,8 +280,8 @@ const FarmerManagement = () => {
             {
               title: 'Action',
               render: (_, record) => (
-                <Button 
-                  type="link" 
+                <Button
+                  type="link"
                   onClick={() => {
                     setSelectedFarmer(record);
                     setIsModalVisible(true);
@@ -287,8 +296,8 @@ const FarmerManagement = () => {
           rowKey="uid"
         />
       </Spin>
-      <FarmerModal 
-        visible={isModalVisible} 
+      <FarmerModal
+        visible={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
           setSelectedFarmer(null);
@@ -324,21 +333,21 @@ const InsuranceModal = ({ visible, onCancel, insurance, onSave, loading, farmers
   }, [insurance, form]);
 
   return (
-    <Modal 
-      title={insurance ? "Edit Insurance" : "Add Insurance"} 
-      open={visible} 
+    <Modal
+      title={insurance ? "Edit Insurance" : "Add Insurance"}
+      open={visible}
       onCancel={onCancel}
       footer={null}
       width={700}
       forceRender
     >
-      <Form 
+      <Form
         form={form}
         layout="vertical"
         onFinish={onSave}
       >
-        <Form.Item 
-          label="Farmer" 
+        <Form.Item
+          label="Farmer"
           name="farmer_id"
           rules={[{ required: true, message: 'Please select farmer!' }]}
         >
@@ -350,9 +359,9 @@ const InsuranceModal = ({ visible, onCancel, insurance, onSave, loading, farmers
             ))}
           </Select>
         </Form.Item>
-        
-        <Form.Item 
-          label="Crop Type" 
+
+        <Form.Item
+          label="Crop Type"
           name="crop_type"
           rules={[{ required: true, message: 'Please select crop type!' }]}
         >
@@ -365,33 +374,33 @@ const InsuranceModal = ({ visible, onCancel, insurance, onSave, loading, farmers
             <Option value="fruits">Fruits</Option>
           </Select>
         </Form.Item>
-        
-        <Form.Item 
-          label="Land Size (acres)" 
+
+        <Form.Item
+          label="Land Size (acres)"
           name="land_size"
           rules={[{ required: true, message: 'Please input land size!' }]}
         >
           <Input type="number" />
         </Form.Item>
-        
-        <Form.Item 
-          label="Location" 
+
+        <Form.Item
+          label="Location"
           name="location"
           rules={[{ required: true, message: 'Please input location!' }]}
         >
           <Input />
         </Form.Item>
-        
-        <Form.Item 
-          label="Expected Yield (kg)" 
+
+        <Form.Item
+          label="Expected Yield (kg)"
           name="expected_yield"
           rules={[{ required: true, message: 'Please input expected yield!' }]}
         >
           <Input type="number" />
         </Form.Item>
-        
-        <Form.Item 
-          label="Season" 
+
+        <Form.Item
+          label="Season"
           name="season"
           rules={[{ required: true, message: 'Please select season!' }]}
         >
@@ -401,9 +410,9 @@ const InsuranceModal = ({ visible, onCancel, insurance, onSave, loading, farmers
             <Option value="off-season">Off Season</Option>
           </Select>
         </Form.Item>
-        
-        <Form.Item 
-          label="Coverage Type" 
+
+        <Form.Item
+          label="Coverage Type"
           name="coverage_type"
           rules={[{ required: true, message: 'Please select coverage type!' }]}
         >
@@ -413,23 +422,23 @@ const InsuranceModal = ({ visible, onCancel, insurance, onSave, loading, farmers
             <Option value="catastrophic">Catastrophic Only</Option>
           </Select>
         </Form.Item>
-        
-        <Form.Item 
-          label="Start Date" 
+
+        <Form.Item
+          label="Start Date"
           name="start_date"
           rules={[{ required: true, message: 'Please select start date!' }]}
         >
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
-        
-        <Form.Item 
-          label="End Date" 
+
+        <Form.Item
+          label="End Date"
           name="end_date"
           rules={[{ required: true, message: 'Please select end date!' }]}
         >
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
-        
+
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
             Save
@@ -467,25 +476,25 @@ const ApplicationModal = ({ visible, onCancel, application, onSave, loading, ins
   };
 
   return (
-    <Modal 
-      title="Process Insurance Application" 
-      open={visible} 
+    <Modal
+      title="Process Insurance Application"
+      open={visible}
       onCancel={onCancel}
       footer={null}
       width={600}
     >
       <div style={{ marginBottom: 16 }}>
         <Space>
-          <Button 
-            type={action === 'approved' ? 'primary' : 'default'} 
+          <Button
+            type={action === 'approved' ? 'primary' : 'default'}
             icon={<CheckOutlined />}
             onClick={() => handleAction('approved')}
           >
             Approve
           </Button>
-          <Button 
-            type={action === 'rejected' ? 'primary' : 'default'} 
-            danger 
+          <Button
+            type={action === 'rejected' ? 'primary' : 'default'}
+            danger
             icon={<CloseOutlined />}
             onClick={() => handleAction('rejected')}
           >
@@ -493,15 +502,15 @@ const ApplicationModal = ({ visible, onCancel, application, onSave, loading, ins
           </Button>
         </Space>
       </div>
-      
-      <Form 
+
+      <Form
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
       >
         {action === 'approved' && (
-          <Form.Item 
-            label="Assign Inspector" 
+          <Form.Item
+            label="Assign Inspector"
             name="inspector_id"
             rules={[{ required: true, message: 'Please select inspector!' }]}
           >
@@ -514,15 +523,15 @@ const ApplicationModal = ({ visible, onCancel, application, onSave, loading, ins
             </Select>
           </Form.Item>
         )}
-        
-        <Form.Item 
-          label="Notes" 
+
+        <Form.Item
+          label="Notes"
           name="notes"
           rules={[{ required: true, message: 'Please enter notes!' }]}
         >
           <TextArea rows={4} />
         </Form.Item>
-        
+
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
             Submit
@@ -536,9 +545,9 @@ const ApplicationModal = ({ visible, onCancel, application, onSave, loading, ins
 // Insurance Details Component
 const InsuranceDetails = ({ insurance, visible, onClose, applications, onProcessApplication }) => {
   return (
-    <Modal 
-      title="Insurance Details" 
-      open={visible} 
+    <Modal
+      title="Insurance Details"
+      open={visible}
       onCancel={onClose}
       footer={null}
       width={800}
@@ -559,15 +568,15 @@ const InsuranceDetails = ({ insurance, visible, onClose, applications, onProcess
           </Tag>
         </Descriptions.Item>
       </Descriptions>
-      
+
       <Divider orientation="left">Applications</Divider>
-      
+
       <Table
         columns={[
           { title: 'Date', dataIndex: 'application_date' },
           { title: 'Type', dataIndex: 'application_type' },
-          { 
-            title: 'Status', 
+          {
+            title: 'Status',
             dataIndex: 'status',
             render: status => (
               <Tag color={status === 'approved' ? 'green' : status === 'pending' ? 'orange' : 'red'}>
@@ -580,8 +589,8 @@ const InsuranceDetails = ({ insurance, visible, onClose, applications, onProcess
             title: 'Action',
             render: (_, record) => (
               record.status === 'pending' ? (
-                <Button 
-                  type="link" 
+                <Button
+                  type="link"
                   onClick={() => onProcessApplication(record)}
                 >
                   Process
@@ -610,29 +619,63 @@ const InsuranceManagement = () => {
   const [insurances, setInsurances] = useState([]);
   const [applications, setApplications] = useState([]);
   const [farmers, setFarmers] = useState([]);
-  const [inspectors, setInspectors] = useState([]);
+  // const [inspectors, setInspectors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [appModalLoading, setAppModalLoading] = useState(false);
+
+
+   const [inspectors, setInspectors] = useState([
+    {
+      uid: 'inspector1',
+      full_name: 'John Doe',
+      specialization: 'Crop Specialist',
+      email: 'john@example.com',
+      phone: '0771234567',
+      status: 'active'
+    },
+    {
+      uid: 'inspector2',
+      full_name: 'Jane Smith',
+      specialization: 'Soil Expert',
+      email: 'jane@example.com',
+      phone: '0777654321',
+      status: 'active'
+    },
+    {
+      uid: 'inspector3',
+      full_name: 'Robert Johnson',
+      specialization: 'Pest Control',
+      email: 'robert@example.com',
+      phone: '0771122334',
+      status: 'active'
+    }
+  ]);
 
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch insurances
-        const insurancesRes = await axios.get(`${baseInsuranceURL}/policies`);
-        setInsurances(insurancesRes.data);
-        
+        const insurancesRes = await axios.get(INSURANCE_URL);
+        // Convert object to array if needed
+        const insurancesData = insurancesRes.data && typeof insurancesRes.data === 'object' 
+          ? Object.entries(insurancesRes.data).map(([key, value]) => ({ id: key, ...value }))
+          : [];
+        setInsurances(insurancesData);
+
         // Fetch farmers
-        const farmersRes = await axios.get(`${baseFarmerURL}/profile/farmer.php?public=all_farmers`);
-        setFarmers(farmersRes.data);
-        
-        // Fetch inspectors
-        const inspectorsRes = await axios.get(`${baseInspectorURL}/profile/inspector.php?public=all_inspectors`);
-        setInspectors(inspectorsRes.data);
-        
+        const farmersRes = await axios.get(`${FARMERS_URL}?public=all_farmers`);
+        const farmersData = Array.isArray(farmersRes.data) ? farmersRes.data : Object.values(farmersRes.data);
+        setFarmers(farmersData);
+
+        // Fetch inspectors - Adjust this endpoint based on your actual API
+        const inspectorsRes = await axios.get(`${API_BASE_URL}/inspectors/profile/inspector.php?public=all_inspectors`);
+        const inspectorsData = Array.isArray(inspectorsRes.data) ? inspectorsRes.data : Object.values(inspectorsRes.data);
+        setInspectors(inspectorsData);
+
       } catch (error) {
         notification.error({ message: 'Failed to fetch data', description: error.message });
       } finally {
@@ -644,45 +687,59 @@ const InsuranceManagement = () => {
   }, []);
 
   // Fetch applications when insurance is selected
-  useEffect(() => {
-    if (selectedInsurance) {
-      const fetchApplications = async () => {
-        try {
-          const res = await axios.get(`${baseInsuranceURL}/applications?policy_id=${selectedInsurance.id}`);
-          setApplications(res.data);
-        } catch (error) {
-          notification.error({ message: 'Failed to fetch applications', description: error.message });
-        }
-      };
-      
-      fetchApplications();
-    }
-  }, [selectedInsurance]);
+ useEffect(() => {
+  if (selectedInsurance) {
+    const fetchApplications = async () => {
+      try {
+        const res = await axios.get(`${INSURANCE_APPLICATIONS_URL}?policy_id=${selectedInsurance.id}`);
+        
+        // Transform the data to include the ID
+        const appsData = Object.entries(res.data).map(([id, application]) => ({
+          id,
+          ...application
+        }));
+        
+        console.log("Transformed appsData:", appsData);
+        setApplications(appsData);
+      } catch (error) {
+        notification.error({ message: 'Failed to fetch applications', description: error.message });
+      }
+    };
+
+    fetchApplications();
+  }
+}, [selectedInsurance]);
 
   const handleSaveInsurance = async (values) => {
     try {
       setModalLoading(true);
-      
+
       if (selectedInsurance) {
         // Update existing insurance
-        await axios.put(`${baseInsuranceURL}/policies/${selectedInsurance.id}`, values);
+        await axios.put(INSURANCE_URL, {
+          id: selectedInsurance.id,
+          ...values
+        });
         notification.success({ message: 'Insurance updated successfully' });
       } else {
         // Create new insurance
-        await axios.post(`${baseInsuranceURL}/policies`, values);
+        await axios.post(INSURANCE_URL, values);
         notification.success({ message: 'Insurance created successfully' });
       }
-      
+
       // Refresh insurances list
-      const response = await axios.get(`${baseInsuranceURL}/policies`);
-      setInsurances(response.data);
-      
+      const response = await axios.get(INSURANCE_URL);
+      const insurancesData = response.data && typeof response.data === 'object' 
+        ? Object.entries(response.data).map(([key, value]) => ({ id: key, ...value }))
+        : [];
+      setInsurances(insurancesData);
+
       setIsModalVisible(false);
       setSelectedInsurance(null);
     } catch (error) {
-      notification.error({ 
-        message: `Failed to ${selectedInsurance ? 'update' : 'create'} insurance`, 
-        description: error.response?.data?.message || error.message 
+      notification.error({
+        message: `Failed to ${selectedInsurance ? 'update' : 'create'} insurance`,
+        description: error.response?.data?.message || error.message
       });
     } finally {
       setModalLoading(false);
@@ -691,16 +748,19 @@ const InsuranceManagement = () => {
 
   const handleDeleteInsurance = async (id) => {
     try {
-      await axios.delete(`${baseInsuranceURL}/policies/${id}`);
+      await axios.delete(`${INSURANCE_URL}?id=${id}`);
       notification.success({ message: 'Insurance deleted successfully' });
-      
+
       // Refresh insurances list
-      const response = await axios.get(`${baseInsuranceURL}/policies`);
-      setInsurances(response.data);
+      const response = await axios.get(INSURANCE_URL);
+      const insurancesData = response.data && typeof response.data === 'object' 
+        ? Object.entries(response.data).map(([key, value]) => ({ id: key, ...value }))
+        : [];
+      setInsurances(insurancesData);
     } catch (error) {
-      notification.error({ 
-        message: 'Failed to delete insurance', 
-        description: error.response?.data?.message || error.message 
+      notification.error({
+        message: 'Failed to delete insurance',
+        description: error.response?.data?.message || error.message
       });
     }
   };
@@ -708,25 +768,29 @@ const InsuranceManagement = () => {
   const handleProcessApplication = async (values) => {
     try {
       setAppModalLoading(true);
-      
-      await axios.put(`${baseInsuranceURL}/applications/${selectedApplication.id}`, {
-        status: values.status,
+
+      console.log("selectedApplication",selectedApplication.id);
+      console.log("values",values);
+
+      await axios.put(`${INSURANCE_APPLICATIONS_URL}?id=${selectedApplication.id}`, {
+        status: values.action,
         notes: values.notes,
         inspector_id: values.inspector_id || null
       });
-      
+
       notification.success({ message: `Application ${values.status} successfully` });
-      
+
       // Refresh applications list
-      const res = await axios.get(`${baseInsuranceURL}/applications?policy_id=${selectedInsurance.id}`);
-      setApplications(res.data);
-      
+      const res = await axios.get(`${INSURANCE_APPLICATIONS_URL}?policy_id=${selectedInsurance.id}`);
+      const appsData = Array.isArray(res.data) ? res.data : Object.values(res.data);
+      setApplications(appsData);
+
       setIsApplicationModalVisible(false);
       setSelectedApplication(null);
     } catch (error) {
-      notification.error({ 
-        message: 'Failed to process application', 
-        description: error.response?.data?.message || error.message 
+      notification.error({
+        message: 'Failed to process application',
+        description: error.response?.data?.message || error.message
       });
     } finally {
       setAppModalLoading(false);
@@ -746,20 +810,20 @@ const InsuranceManagement = () => {
           Add Insurance
         </Button>
       </div>
-      
+
       <Spin spinning={loading}>
         <Table
           columns={[
-            { 
-              title: 'Farmer', 
+            {
+              title: 'Farmer',
               dataIndex: 'farmer_id',
               render: farmerId => getFarmerName(farmerId)
             },
             { title: 'Crop Type', dataIndex: 'crop_type' },
             { title: 'Land Size', dataIndex: 'land_size', render: size => `${size} acres` },
             { title: 'Location', dataIndex: 'location' },
-            { 
-              title: 'Status', 
+            {
+              title: 'Status',
               dataIndex: 'status',
               render: status => (
                 <Tag color={status === 'active' ? 'green' : status === 'pending' ? 'orange' : 'red'}>
@@ -771,17 +835,17 @@ const InsuranceManagement = () => {
               title: 'Action',
               render: (_, record) => (
                 <Space size="middle">
-                  <Button 
-                    type="link" 
-                    icon={<EyeOutlined />} 
+                  <Button
+                    type="link"
+                    icon={<EyeOutlined />}
                     onClick={() => {
                       setSelectedInsurance(record);
                       setIsDetailsVisible(true);
                     }}
                   />
-                  <Button 
-                    type="link" 
-                    icon={<EditOutlined />} 
+                  <Button
+                    type="link"
+                    icon={<EditOutlined />}
                     onClick={() => {
                       setSelectedInsurance(record);
                       setIsModalVisible(true);
@@ -803,9 +867,9 @@ const InsuranceManagement = () => {
           rowKey="id"
         />
       </Spin>
-      
-      <InsuranceModal 
-        visible={isModalVisible} 
+
+      <InsuranceModal
+        visible={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
           setSelectedInsurance(null);
@@ -815,9 +879,9 @@ const InsuranceManagement = () => {
         loading={modalLoading}
         farmers={farmers}
       />
-      
+
       {selectedInsurance && (
-        <InsuranceDetails 
+        <InsuranceDetails
           insurance={selectedInsurance}
           visible={isDetailsVisible}
           onClose={() => setIsDetailsVisible(false)}
@@ -828,9 +892,9 @@ const InsuranceManagement = () => {
           }}
         />
       )}
-      
-      <ApplicationModal 
-        visible={isApplicationModalVisible} 
+
+      <ApplicationModal
+        visible={isApplicationModalVisible}
         onCancel={() => {
           setIsApplicationModalVisible(false);
           setSelectedApplication(null);
@@ -867,9 +931,9 @@ const AdminDashboard = () => {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
         <div className="logo">AgriInsure Admin</div>
-        <Menu 
-          theme="dark" 
-          mode="inline" 
+        <Menu
+          theme="dark"
+          mode="inline"
           items={menuItems}
           defaultSelectedKeys={['dashboard']}
           onClick={handleMenuClick}
@@ -890,6 +954,7 @@ const AdminDashboard = () => {
             <Route path="dashboard" element={<DashboardOverview />} />
             <Route path="farmers" element={<FarmerManagement />} />
             <Route path="insurance" element={<InsuranceManagement />} />
+            <Route path="inspectors" element={<InspectorManagement />} />
             {/* Add other routes as needed */}
           </Routes>
         </Content>

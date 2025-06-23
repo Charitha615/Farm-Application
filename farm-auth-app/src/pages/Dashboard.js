@@ -66,7 +66,7 @@ const SimpleDashboard = () => {
               </ul>
             </li>
             <li>
-              <Link to="/insurance">
+              <Link to="/farmer/insurance">
                 <FaShieldAlt className="nav-icon" />
                 <span>Insurance Management</span>
               </Link>
