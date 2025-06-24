@@ -12,6 +12,7 @@ import FarmerInsurancePage from './pages/FarmerInsurancePage';
 import ProfileEdit from './pages/ProfileEdit';
 
 import LandList from './pages/LandList';
+import LandManagement from './pages/LandManagement'
 import AddLand from './pages/AddLand';
 import EditLand from './pages/EditLand';
 
@@ -39,7 +40,7 @@ function App() {
             <Route path="/farmer/insurance" element={<FarmerInsurancePage />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
 
-            <Route path="/lands" element={<LandList />} />
+            <Route path="/lands" element={<LandManagement />} />
             <Route path="/land/add" element={<AddLand />} />
             <Route path="/lands/edit/:id" element={<EditLand />} />
 

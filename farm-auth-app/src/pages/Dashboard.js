@@ -51,12 +51,12 @@ const SimpleDashboard = () => {
                 <span>Land Registrations</span>
               </div>
               <ul className="submenu">
-                <li>
+                {/* <li>
                   <Link to="/land/add">
                     <FaPlus className="nav-icon" />
                     <span>Add Land</span>
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link to="/lands">
                     <FaList className="nav-icon" />
@@ -161,11 +161,11 @@ const SimpleDashboard = () => {
           <div className="actions-container">
             <h2>Quick Actions</h2>
             <div className="action-buttons">
-              <Link to="/land/add" className="action-btn">
+              <Link to="/lands" className="action-btn">
                 <FaPlus />
                 <span>Add Land</span>
               </Link>
-              <Link to="/insurance" className="action-btn">
+              <Link to="/farmer/insurance" className="action-btn">
                 <FaShieldAlt />
                 <span>Manage Insurance</span>
               </Link>

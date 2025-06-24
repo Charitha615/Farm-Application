@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import InspectorManagement from './InspectorManagement';
+import AdminLandManagement from './AdminLandManagement';
 import {
   DashboardOutlined,
   UserOutlined,
@@ -619,38 +620,12 @@ const InsuranceManagement = () => {
   const [insurances, setInsurances] = useState([]);
   const [applications, setApplications] = useState([]);
   const [farmers, setFarmers] = useState([]);
-  // const [inspectors, setInspectors] = useState([]);
+  const [inspectors, setInspectors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [appModalLoading, setAppModalLoading] = useState(false);
+  const INSPECTORS_URL = `${API_BASE_URL}/inspectors/inspectors.php`;
 
-
-   const [inspectors, setInspectors] = useState([
-    {
-      uid: 'inspector1',
-      full_name: 'John Doe',
-      specialization: 'Crop Specialist',
-      email: 'john@example.com',
-      phone: '0771234567',
-      status: 'active'
-    },
-    {
-      uid: 'inspector2',
-      full_name: 'Jane Smith',
-      specialization: 'Soil Expert',
-      email: 'jane@example.com',
-      phone: '0777654321',
-      status: 'active'
-    },
-    {
-      uid: 'inspector3',
-      full_name: 'Robert Johnson',
-      specialization: 'Pest Control',
-      email: 'robert@example.com',
-      phone: '0771122334',
-      status: 'active'
-    }
-  ]);
 
   // Fetch data
   useEffect(() => {
@@ -661,7 +636,79 @@ const InsuranceManagement = () => {
         // Fetch insurances
         const insurancesRes = await axios.get(INSURANCE_URL);
         // Convert object to array if needed
-        const insurancesData = insurancesRes.data && typeof insurancesRes.data === 'object' 
+        const insurancesData = insurancesRes.data && typeof insurancesRes.data === 'object'
+          ? Object.entries(insurancesRes.data).map(([key, value]) => ({ id: key, ...value }))
+          : [];
+        setInsurances(insurancesData);
+
+        // Fetch farmers
+        const farmersRes = await axios.get(`${FARMERS_URL}?public=all_farmers`);
+        const farmersData = Array.isArray(farmersRes.data) ? farmersRes.data : Object.values(farmersRes.data);
+        setFarmers(farmersData);
+
+        // Fetch inspectors
+        const inspectorsRes = await axios.get(INSPECTORS_URL);
+        const inspectorsData = inspectorsRes.data && typeof inspectorsRes.data === 'object'
+          ? Object.entries(inspectorsRes.data).map(([key, value]) => ({
+            uid: key,
+            full_name: value.name,
+            specialization: value.specialization.join(', '),
+            email: value.email,
+            phone: value.phone,
+            status: value.status,
+            license_number: value.license_number,
+            address: value.address
+          }))
+          : [];
+        setInspectors(inspectorsData);
+
+      } catch (error) {
+        notification.error({ message: 'Failed to fetch data', description: error.message });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  //  const [inspectors, setInspectors] = useState([
+  //   {
+  //     uid: 'inspector1',
+  //     full_name: 'John Doe',
+  //     specialization: 'Crop Specialist',
+  //     email: 'john@example.com',
+  //     phone: '0771234567',
+  //     status: 'active'
+  //   },
+  //   {
+  //     uid: 'inspector2',
+  //     full_name: 'Jane Smith',
+  //     specialization: 'Soil Expert',
+  //     email: 'jane@example.com',
+  //     phone: '0777654321',
+  //     status: 'active'
+  //   },
+  //   {
+  //     uid: 'inspector3',
+  //     full_name: 'Robert Johnson',
+  //     specialization: 'Pest Control',
+  //     email: 'robert@example.com',
+  //     phone: '0771122334',
+  //     status: 'active'
+  //   }
+  // ]);
+
+  // Fetch data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch insurances
+        const insurancesRes = await axios.get(INSURANCE_URL);
+        // Convert object to array if needed
+        const insurancesData = insurancesRes.data && typeof insurancesRes.data === 'object'
           ? Object.entries(insurancesRes.data).map(([key, value]) => ({ id: key, ...value }))
           : [];
         setInsurances(insurancesData);
@@ -687,28 +734,28 @@ const InsuranceManagement = () => {
   }, []);
 
   // Fetch applications when insurance is selected
- useEffect(() => {
-  if (selectedInsurance) {
-    const fetchApplications = async () => {
-      try {
-        const res = await axios.get(`${INSURANCE_APPLICATIONS_URL}?policy_id=${selectedInsurance.id}`);
-        
-        // Transform the data to include the ID
-        const appsData = Object.entries(res.data).map(([id, application]) => ({
-          id,
-          ...application
-        }));
-        
-        console.log("Transformed appsData:", appsData);
-        setApplications(appsData);
-      } catch (error) {
-        notification.error({ message: 'Failed to fetch applications', description: error.message });
-      }
-    };
+  useEffect(() => {
+    if (selectedInsurance) {
+      const fetchApplications = async () => {
+        try {
+          const res = await axios.get(`${INSURANCE_APPLICATIONS_URL}?policy_id=${selectedInsurance.id}`);
 
-    fetchApplications();
-  }
-}, [selectedInsurance]);
+          // Transform the data to include the ID
+          const appsData = Object.entries(res.data).map(([id, application]) => ({
+            id,
+            ...application
+          }));
+
+          console.log("Transformed appsData:", appsData);
+          setApplications(appsData);
+        } catch (error) {
+          notification.error({ message: 'Failed to fetch applications', description: error.message });
+        }
+      };
+
+      fetchApplications();
+    }
+  }, [selectedInsurance]);
 
   const handleSaveInsurance = async (values) => {
     try {
@@ -729,7 +776,7 @@ const InsuranceManagement = () => {
 
       // Refresh insurances list
       const response = await axios.get(INSURANCE_URL);
-      const insurancesData = response.data && typeof response.data === 'object' 
+      const insurancesData = response.data && typeof response.data === 'object'
         ? Object.entries(response.data).map(([key, value]) => ({ id: key, ...value }))
         : [];
       setInsurances(insurancesData);
@@ -753,7 +800,7 @@ const InsuranceManagement = () => {
 
       // Refresh insurances list
       const response = await axios.get(INSURANCE_URL);
-      const insurancesData = response.data && typeof response.data === 'object' 
+      const insurancesData = response.data && typeof response.data === 'object'
         ? Object.entries(response.data).map(([key, value]) => ({ id: key, ...value }))
         : [];
       setInsurances(insurancesData);
@@ -769,8 +816,8 @@ const InsuranceManagement = () => {
     try {
       setAppModalLoading(true);
 
-      console.log("selectedApplication",selectedApplication.id);
-      console.log("values",values);
+      console.log("selectedApplication", selectedApplication.id);
+      console.log("values", values);
 
       await axios.put(`${INSURANCE_APPLICATIONS_URL}?id=${selectedApplication.id}`, {
         status: values.action,
@@ -916,6 +963,7 @@ const AdminDashboard = () => {
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
     { key: 'farmers', icon: <UserOutlined />, label: 'Farmer Management' },
+    { key: 'adminland', icon: <TeamOutlined />, label: 'Land Management' },
     { key: 'insurance', icon: <InsuranceOutlined />, label: 'Insurance Applications' },
     { key: 'claims', icon: <AlertOutlined />, label: 'Claim Management' },
     { key: 'inspectors', icon: <TeamOutlined />, label: 'Inspector Management' },
@@ -955,6 +1003,7 @@ const AdminDashboard = () => {
             <Route path="farmers" element={<FarmerManagement />} />
             <Route path="insurance" element={<InsuranceManagement />} />
             <Route path="inspectors" element={<InspectorManagement />} />
+            <Route path="adminland" element={<AdminLandManagement />} />
             {/* Add other routes as needed */}
           </Routes>
         </Content>
