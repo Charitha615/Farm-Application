@@ -13,20 +13,28 @@ import {
   Popconfirm,
   message,
   Descriptions,
-  Divider
+  Divider,
+  Tabs,
+  Card
 } from 'antd';
 import {
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
-  PlusOutlined
+  PlusOutlined,
+  FileTextOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Option } = Select;
+const { TabPane } = Tabs;
 
 // Base URL for Inspectors API
 const INSPECTORS_API_URL = 'http://localhost/firebase-auth/api/inspectors/inspectors.php';
+const INSURANCE_APPLICATIONS_API_URL = 'http://localhost/firebase-auth/api/insurance/insurance_applications.php';
 
 const InspectorManagement = () => {
   const [inspectors, setInspectors] = useState([]);
@@ -35,6 +43,8 @@ const InspectorManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedInspector, setSelectedInspector] = useState(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+  const [insuranceApplications, setInsuranceApplications] = useState([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(false);
 
   // Fetch inspectors data
   useEffect(() => {
@@ -67,6 +77,38 @@ const InspectorManagement = () => {
 
     fetchInspectors();
   }, []);
+
+  const fetchInsuranceApplications = async (inspectorId) => {
+    try {
+      setApplicationsLoading(true);
+      const response = await axios.get(`${INSURANCE_APPLICATIONS_API_URL}?inspector_id=${inspectorId}`);
+      
+      let applicationsData = [];
+      if (response.data && typeof response.data === 'object') {
+        applicationsData = Object.entries(response.data).map(([id, application]) => ({ 
+          id, 
+          ...application 
+        }));
+      } else if (Array.isArray(response.data)) {
+        applicationsData = response.data;
+      }
+      
+      setInsuranceApplications(applicationsData);
+    } catch (error) {
+      notification.error({ 
+        message: 'Failed to fetch insurance applications', 
+        description: error.message 
+      });
+    } finally {
+      setApplicationsLoading(false);
+    }
+  };
+
+  const handleShowDetails = (inspector) => {
+    setSelectedInspector(inspector);
+    setIsDetailsVisible(true);
+    fetchInsuranceApplications(inspector.id);
+  };
 
   const handleSaveInspector = async (values) => {
     try {
@@ -288,47 +330,104 @@ const InspectorManagement = () => {
     );
   };
 
+  const getStatusTag = (status) => {
+    switch (status) {
+      case 'approved':
+        return <Tag icon={<CheckCircleOutlined />} color="success">Approved</Tag>;
+      case 'pending':
+        return <Tag icon={<ClockCircleOutlined />} color="processing">Pending</Tag>;
+      case 'rejected':
+        return <Tag icon={<CloseCircleOutlined />} color="error">Rejected</Tag>;
+      default:
+        return <Tag>{status}</Tag>;
+    }
+  };
+
   const InspectorDetails = ({ inspector, visible, onClose }) => {
     return (
       <Modal
-        title="Inspector Details"
+        title={`Inspector Details - ${inspector.name}`}
         open={visible}
         onCancel={onClose}
         footer={null}
-        width={700}
+        width={900}
       >
-        <Descriptions bordered column={2}>
-          <Descriptions.Item label="Name">{inspector.name}</Descriptions.Item>
-          <Descriptions.Item label="Email">{inspector.email}</Descriptions.Item>
-          <Descriptions.Item label="Phone">{inspector.phone}</Descriptions.Item>
-          <Descriptions.Item label="License Number">{inspector.license_number}</Descriptions.Item>
-          <Descriptions.Item label="Specialization">
-            {Array.isArray(inspector.specialization) ? (
-              inspector.specialization.map(spec => (
-                <Tag key={spec}>{spec}</Tag>
-              ))
-            ) : (
-              <Tag>{inspector.specialization}</Tag>
-            )}
-          </Descriptions.Item>
-          <Descriptions.Item label="Status">
-            <Tag color={inspector.status === 'active' ? 'green' : 'red'}>
-              {inspector.status}
-            </Tag>
-          </Descriptions.Item>
-          
-          {inspector.address && (
-            <>
-              <Descriptions.Item label="Street" span={2}>
-                {inspector.address.street}
+        <Tabs defaultActiveKey="1">
+          <TabPane tab="Basic Information" key="1">
+            <Descriptions bordered column={2}>
+              <Descriptions.Item label="Name">{inspector.name}</Descriptions.Item>
+              <Descriptions.Item label="Email">{inspector.email}</Descriptions.Item>
+              <Descriptions.Item label="Phone">{inspector.phone}</Descriptions.Item>
+              <Descriptions.Item label="License Number">{inspector.license_number}</Descriptions.Item>
+              <Descriptions.Item label="Specialization">
+                {Array.isArray(inspector.specialization) ? (
+                  inspector.specialization.map(spec => (
+                    <Tag key={spec}>{spec}</Tag>
+                  ))
+                ) : (
+                  <Tag>{inspector.specialization}</Tag>
+                )}
               </Descriptions.Item>
-              <Descriptions.Item label="City">{inspector.address.city}</Descriptions.Item>
-              <Descriptions.Item label="State">{inspector.address.state}</Descriptions.Item>
-              <Descriptions.Item label="ZIP Code">{inspector.address.zip}</Descriptions.Item>
-              <Descriptions.Item label="Country">{inspector.address.country}</Descriptions.Item>
-            </>
-          )}
-        </Descriptions>
+              <Descriptions.Item label="Status">
+                <Tag color={inspector.status === 'active' ? 'green' : 'red'}>
+                  {inspector.status}
+                </Tag>
+              </Descriptions.Item>
+              
+              {inspector.address && (
+                <>
+                  <Descriptions.Item label="Street" span={2}>
+                    {inspector.address.street}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="City">{inspector.address.city}</Descriptions.Item>
+                  <Descriptions.Item label="State">{inspector.address.state}</Descriptions.Item>
+                  <Descriptions.Item label="ZIP Code">{inspector.address.zip}</Descriptions.Item>
+                  <Descriptions.Item label="Country">{inspector.address.country}</Descriptions.Item>
+                </>
+              )}
+            </Descriptions>
+          </TabPane>
+          
+          <TabPane 
+            tab={
+              <span>
+                <FileTextOutlined />
+                Insurance Applications ({insuranceApplications.length})
+              </span>
+            } 
+            key="2"
+          >
+            <Spin spinning={applicationsLoading}>
+              <Card title="Assigned Insurance Applications" bordered={false}>
+                <Table
+                  columns={[
+                    { title: 'Application Date', dataIndex: 'application_date' },
+                    { 
+                      title: 'Type', 
+                      dataIndex: 'application_type',
+                      render: type => (
+                        <Tag color={type === 'new_claim' ? 'blue' : 'purple'}>
+                          {type === 'new_claim' ? 'New Claim' : 'Renewal'}
+                        </Tag>
+                      )
+                    },
+                    { title: 'Claim Amount', dataIndex: 'claim_amount' },
+                    { 
+                      title: 'Status', 
+                      dataIndex: 'status',
+                      render: status => getStatusTag(status)
+                    },
+                    { title: 'Policy ID', dataIndex: 'policy_id' },
+                    { title: 'Updated At', dataIndex: 'updated_at' }
+                  ]}
+                  dataSource={insuranceApplications}
+                  rowKey="id"
+                  pagination={{ pageSize: 5 }}
+                />
+              </Card>
+            </Spin>
+          </TabPane>
+        </Tabs>
       </Modal>
     );
   };
@@ -383,10 +482,7 @@ const InspectorManagement = () => {
                   <Button
                     type="link"
                     icon={<EyeOutlined />}
-                    onClick={() => {
-                      setSelectedInspector(record);
-                      setIsDetailsVisible(true);
-                    }}
+                    onClick={() => handleShowDetails(record)}
                   />
                   <Button
                     type="link"
