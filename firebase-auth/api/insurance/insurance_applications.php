@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $applicationsRef = $database->getReference('insurance_applications');
 
-// GET applications (filter by policy_id if provided)
+// GET applications (filter by policy_id or inspector_id if provided)
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         $applications = $applicationsRef->getValue();
@@ -27,6 +27,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $filteredApplications = [];
             foreach ($applications as $id => $app) {
                 if ($app['policy_id'] == $_GET['policy_id']) {
+                    $filteredApplications[$id] = $app;
+                }
+            }
+            $applications = $filteredApplications;
+        }
+        
+        // Filter by inspector_id if provided
+        if (isset($_GET['inspector_id'])) {
+            $filteredApplications = [];
+            foreach ($applications as $id => $app) {
+                if (isset($app['inspector_id']) && $app['inspector_id'] == $_GET['inspector_id']) {
                     $filteredApplications[$id] = $app;
                 }
             }
