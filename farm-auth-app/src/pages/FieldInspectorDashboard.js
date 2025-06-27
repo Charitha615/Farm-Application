@@ -18,7 +18,8 @@ import {
   Space,
   Spin,
   Descriptions,
-  Divider
+  Divider,
+  Badge
 } from 'antd';
 import { 
   DashboardOutlined, 
@@ -29,7 +30,8 @@ import {
   UploadOutlined,
   CameraOutlined,
   CommentOutlined,
-  DownloadOutlined
+  DownloadOutlined,
+  FileDoneOutlined // New icon for Claims
 } from '@ant-design/icons';
 import axios from 'axios';
 import '../css/InspectorDashboard.css';
@@ -40,28 +42,49 @@ const { TextArea } = Input;
 
 // API endpoints
 const ASSIGNMENTS_API_URL = 'http://localhost/firebase-auth/api/insurance/insurance_applications.php';
+const CLAIMS_API_URL = 'http://localhost/firebase-auth/api/farmers/claims/claims.php';
 
 const FieldInspectorDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [assignments, setAssignments] = useState([]);
+  const [claims, setClaims] = useState([]);
   const [isReportModalVisible, setIsReportModalVisible] = useState(false);
   const [currentAssignment, setCurrentAssignment] = useState(null);
   const [reportForm] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [claimsLoading, setClaimsLoading] = useState(false);
+
+  // Get inspector ID from localStorage
+  const getInspectorId = () => {
+    const inspectorData = localStorage.getItem('inspector');
+    if (inspectorData) {
+      try {
+        const parsedData = JSON.parse(inspectorData);
+        return parsedData.id;
+      } catch (e) {
+        console.error('Error parsing inspector data:', e);
+        return null;
+      }
+    }
+    return null;
+  };
 
   // Fetch assignments from API
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
         setLoading(true);
-        // In a real app, you would get the inspector_id from auth context or props
-        const inspectorId = '-OTTJ0VSl5waPwL3cvkQ'; // Replace with actual inspector ID
+        const inspectorId = getInspectorId();
+        if (!inspectorId) {
+          notification.error({ message: 'Inspector ID not found' });
+          return;
+        }
+        
         const response = await axios.get(`${ASSIGNMENTS_API_URL}?inspector_id=${inspectorId}`);
         
-        // Convert object to array with IDs if needed
         let assignmentsData = [];
         if (response.data && typeof response.data === 'object') {
           assignmentsData = Object.entries(response.data).map(([id, assignment]) => ({ 
@@ -89,8 +112,53 @@ const FieldInspectorDashboard = () => {
       }
     };
 
-    fetchAssignments();
-  }, []);
+    if (activeTab !== 'claims') {
+      fetchAssignments();
+    }
+  }, [activeTab]);
+
+  // Fetch claims from API
+  useEffect(() => {
+    const fetchClaims = async () => {
+      try {
+        setClaimsLoading(true);
+        const inspectorId = getInspectorId();
+        if (!inspectorId) {
+          notification.error({ message: 'Inspector ID not found' });
+          return;
+        }
+        
+        const response = await axios.get(`${CLAIMS_API_URL}?inspector_id=${inspectorId}`);
+        
+        let claimsData = [];
+        if (response.data && typeof response.data === 'object') {
+          claimsData = Object.entries(response.data).map(([id, claim]) => ({ 
+            id, 
+            ...claim,
+            status: claim.status || 'pending'
+          }));
+        } else if (Array.isArray(response.data)) {
+          claimsData = response.data.map(claim => ({
+            ...claim,
+            status: claim.status || 'pending'
+          }));
+        }
+        
+        setClaims(claimsData);
+      } catch (error) {
+        notification.error({ 
+          message: 'Failed to fetch claims', 
+          description: error.message 
+        });
+      } finally {
+        setClaimsLoading(false);
+      }
+    };
+
+    if (activeTab === 'claims') {
+      fetchClaims();
+    }
+  }, [activeTab]);
 
   // Helper functions to map API status to UI status
   const getStatusFromApiStatus = (apiStatus) => {
@@ -128,13 +196,11 @@ const FieldInspectorDashboard = () => {
 
   const handleReportSubmit = (values) => {
     setUploading(true);
-    // Here you would typically upload to your API
     console.log('Report submitted:', values);
     setTimeout(() => {
       setUploading(false);
       setIsReportModalVisible(false);
       message.success('Report submitted successfully!');
-      // Update assignment status
       setAssignments(assignments.map(a => 
         a.id === currentAssignment.id ? {...a, status: 'completed', progress: 100} : a
       ));
@@ -142,7 +208,6 @@ const FieldInspectorDashboard = () => {
   };
 
   const handleStatusChange = (assignmentId, status) => {
-    // Update assignment status
     setAssignments(assignments.map(a => 
       a.id === assignmentId ? {...a, status} : a
     ));
@@ -168,19 +233,28 @@ const FieldInspectorDashboard = () => {
         return <Tag color="blue">In Progress</Tag>;
       case 'completed':
         return <Tag color="green">Completed</Tag>;
+      case 'pending':
+        return <Tag color="orange">Pending</Tag>;
+      case 'approved':
+        return <Tag color="green">Approved</Tag>;
+      case 'rejected':
+        return <Tag color="red">Rejected</Tag>;
+      case 'under_review':
+        return <Tag color="blue">Under Review</Tag>;
       default:
         return <Tag>Unknown</Tag>;
     }
   };
 
   const downloadPdf = (assignment) => {
-    // In a real app, this would call an API endpoint to generate/download PDF
     message.info(`Generating PDF for ${assignment.id}`);
-    console.log('Downloading PDF for:', assignment);
-    // Simulate PDF download
     setTimeout(() => {
       message.success(`PDF downloaded for ${assignment.id}`);
     }, 1000);
+  };
+
+  const getClaimCountByStatus = (status) => {
+    return claims.filter(claim => claim.status === status).length;
   };
 
   return (
@@ -199,6 +273,12 @@ const FieldInspectorDashboard = () => {
           <Menu.Item key="assignments" icon={<FileSearchOutlined />}>
             Assignments
           </Menu.Item>
+          <Menu.Item key="claims" icon={<FileDoneOutlined />}>
+            <Badge count={getClaimCountByStatus('pending')} offset={[10, 0]}>
+            </Badge>
+              Claims
+
+          </Menu.Item>
           <Menu.Item key="reports" icon={<FileAddOutlined />}>
             Inspection Reports
           </Menu.Item>
@@ -214,7 +294,7 @@ const FieldInspectorDashboard = () => {
         </Header>
 
         <Content style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
-          <Spin spinning={loading}>
+          <Spin spinning={loading || claimsLoading}>
             {activeTab === 'dashboard' && (
               <div className="dashboard-overview">
                 <div className="stats-grid">
@@ -286,7 +366,7 @@ const FieldInspectorDashboard = () => {
                         )
                       }
                     ]}
-                    dataSource={assignments.slice(0, 5)} // Show only recent 5
+                    dataSource={assignments.slice(0, 5)}
                     rowKey="id"
                     pagination={false}
                   />
@@ -422,6 +502,194 @@ const FieldInspectorDashboard = () => {
                     />
                   </TabPane>
                 </Tabs>
+              </div>
+            )}
+
+            {activeTab === 'claims' && (
+              <div className="claims-section">
+                <div className="stats-grid" style={{ marginBottom: 24 }}>
+                  <Card>
+                    <h3>Pending Claims</h3>
+                    <p className="stat-value">{getClaimCountByStatus('pending')}</p>
+                  </Card>
+                  <Card>
+                    <h3>Approved</h3>
+                    <p className="stat-value">{getClaimCountByStatus('approved')}</p>
+                  </Card>
+                  <Card>
+                    <h3>Rejected</h3>
+                    <p className="stat-value">{getClaimCountByStatus('rejected')}</p>
+                  </Card>
+                  <Card>
+                    <h3>Under Review</h3>
+                    <p className="stat-value">{getClaimCountByStatus('under_review')}</p>
+                  </Card>
+                </div>
+
+                <Card title="Insurance Claims">
+                  <Tabs defaultActiveKey="all">
+                    <TabPane tab="All Claims" key="all">
+                      <Table 
+                        columns={[
+                          { title: 'Claim ID', dataIndex: 'id' },
+                          { title: 'Policy ID', dataIndex: 'policy_id' },
+                          { title: 'Farmer ID', dataIndex: 'farmer_id' },
+                          { title: 'Land ID', dataIndex: 'land_id' },
+                          { 
+                            title: 'Damage Type', 
+                            dataIndex: 'damage_type',
+                            render: type => <Tag color="volcano">{type}</Tag>
+                          },
+                          { title: 'Damage Date', dataIndex: 'damage_date' },
+                          { 
+                            title: 'Status', 
+                            dataIndex: 'status',
+                            render: (status) => renderStatusTag(status)
+                          },
+                          {
+                            title: 'Action',
+                            render: (_, record) => (
+                              <Button 
+                                type="link"
+                                onClick={() => {
+                                  Modal.info({
+                                    title: `Claim Details - ${record.id}`,
+                                    width: 800,
+                                    content: (
+                                      <Descriptions bordered column={2}>
+                                        <Descriptions.Item label="Claim ID">{record.id}</Descriptions.Item>
+                                        <Descriptions.Item label="Policy ID">{record.policy_id}</Descriptions.Item>
+                                        <Descriptions.Item label="Farmer ID">{record.farmer_id}</Descriptions.Item>
+                                        <Descriptions.Item label="Land ID">{record.land_id}</Descriptions.Item>
+                                        <Descriptions.Item label="Damage Type">{record.damage_type}</Descriptions.Item>
+                                        <Descriptions.Item label="Damage Date">{record.damage_date}</Descriptions.Item>
+                                        <Descriptions.Item label="Status">{renderStatusTag(record.status)}</Descriptions.Item>
+                                        <Descriptions.Item label="Created At">{record.created_at}</Descriptions.Item>
+                                        <Descriptions.Item label="Updated At">{record.updated_at}</Descriptions.Item>
+                                        <Descriptions.Item label="Description" span={2}>
+                                          {record.description}
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Evidence Files" span={2}>
+                                          {record.evidence_files && record.evidence_files.length > 0 ? (
+                                            <div>
+                                              {record.evidence_files.map((file, index) => (
+                                                <Button 
+                                                  key={index} 
+                                                  type="link" 
+                                                  icon={<DownloadOutlined />}
+                                                  onClick={() => message.info(`Would download ${file}`)}
+                                                >
+                                                  {file}
+                                                </Button>
+                                              ))}
+                                            </div>
+                                          ) : 'No files'}
+                                        </Descriptions.Item>
+                                        {record.inspection_report && (
+                                          <Descriptions.Item label="Inspection Report" span={2}>
+                                            {record.inspection_report}
+                                          </Descriptions.Item>
+                                        )}
+                                      </Descriptions>
+                                    )
+                                  });
+                                }}
+                              >
+                                View Details
+                              </Button>
+                            )
+                          }
+                        ]}
+                        dataSource={claims}
+                        rowKey="id"
+                      />
+                    </TabPane>
+                    <TabPane tab="Pending" key="pending">
+                      <Table 
+                        columns={[
+                          { title: 'Claim ID', dataIndex: 'id' },
+                          { title: 'Policy ID', dataIndex: 'policy_id' },
+                          { title: 'Farmer ID', dataIndex: 'farmer_id' },
+                          { title: 'Damage Type', dataIndex: 'damage_type' },
+                          { title: 'Damage Date', dataIndex: 'damage_date' },
+                          {
+                            title: 'Action',
+                            render: (_, record) => (
+                              <Space>
+                                <Button 
+                                  type="primary"
+                                  onClick={() => {
+                                    Modal.confirm({
+                                      title: 'Approve this claim?',
+                                      content: 'Are you sure you want to approve this insurance claim?',
+                                      onOk: () => {
+                                        message.success(`Claim ${record.id} approved`);
+                                        // In a real app, you would call API to update status
+                                        setClaims(claims.map(c => 
+                                          c.id === record.id ? {...c, status: 'approved'} : c
+                                        ));
+                                      }
+                                    });
+                                  }}
+                                >
+                                  Approve
+                                </Button>
+                                <Button 
+                                  danger
+                                  onClick={() => {
+                                    Modal.confirm({
+                                      title: 'Reject this claim?',
+                                      content: 'Are you sure you want to reject this insurance claim?',
+                                      onOk: () => {
+                                        message.success(`Claim ${record.id} rejected`);
+                                        // In a real app, you would call API to update status
+                                        setClaims(claims.map(c => 
+                                          c.id === record.id ? {...c, status: 'rejected'} : c
+                                        ));
+                                      }
+                                    });
+                                  }}
+                                >
+                                  Reject
+                                </Button>
+                              </Space>
+                            )
+                          }
+                        ]}
+                        dataSource={claims.filter(c => c.status === 'pending')}
+                        rowKey="id"
+                      />
+                    </TabPane>
+                    <TabPane tab="Approved" key="approved">
+                      <Table 
+                        columns={[
+                          { title: 'Claim ID', dataIndex: 'id' },
+                          { title: 'Policy ID', dataIndex: 'policy_id' },
+                          { title: 'Farmer ID', dataIndex: 'farmer_id' },
+                          { title: 'Damage Type', dataIndex: 'damage_type' },
+                          { title: 'Damage Date', dataIndex: 'damage_date' },
+                          { title: 'Approved On', dataIndex: 'updated_at' }
+                        ]}
+                        dataSource={claims.filter(c => c.status === 'approved')}
+                        rowKey="id"
+                      />
+                    </TabPane>
+                    <TabPane tab="Rejected" key="rejected">
+                      <Table 
+                        columns={[
+                          { title: 'Claim ID', dataIndex: 'id' },
+                          { title: 'Policy ID', dataIndex: 'policy_id' },
+                          { title: 'Farmer ID', dataIndex: 'farmer_id' },
+                          { title: 'Damage Type', dataIndex: 'damage_type' },
+                          { title: 'Damage Date', dataIndex: 'damage_date' },
+                          { title: 'Rejected On', dataIndex: 'updated_at' }
+                        ]}
+                        dataSource={claims.filter(c => c.status === 'rejected')}
+                        rowKey="id"
+                      />
+                    </TabPane>
+                  </Tabs>
+                </Card>
               </div>
             )}
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import InspectorManagement from './InspectorManagement';
 import AdminLandManagement from './AdminLandManagement';
+import AdminClaimManagement from './AdminClaimManagement';
 import {
   DashboardOutlined,
   UserOutlined,
@@ -1004,6 +1005,7 @@ const AdminDashboard = () => {
             <Route path="insurance" element={<InsuranceManagement />} />
             <Route path="inspectors" element={<InspectorManagement />} />
             <Route path="adminland" element={<AdminLandManagement />} />
+            <Route path="claims" element={<AdminClaimManagement />} />
             {/* Add other routes as needed */}
           </Routes>
         </Content>

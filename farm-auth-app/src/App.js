@@ -22,6 +22,9 @@ import AdminDashboard from './pages/AdminDashboard';
 
 import FieldInspectorDashboard from './pages/FieldInspectorDashboard';
 
+import DamageClaimPage from './pages/DamageClaimPage';
+import RiskAlertsPage from './pages/RiskAlertsPage';
+
 
 function App() {
   return (
@@ -49,6 +52,11 @@ function App() {
 
 
             <Route path="/inspector/dashboard" element={<FieldInspectorDashboard />} />
+
+
+            <Route path="/farmer/damageclaim" element={<DamageClaimPage />} />
+            <Route path="/farmer/riskalerts" element={<RiskAlertsPage />} />
+
 
           </Routes>
         </Layout>

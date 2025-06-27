@@ -30,7 +30,7 @@ const SimpleDashboard = () => {
         <div className="sidebar-header">
           <h2>Farm<span>Portal</span></h2>
         </div>
-        
+
         <nav className="sidebar-nav">
           <ul>
             <li className="active">
@@ -72,9 +72,15 @@ const SimpleDashboard = () => {
               </Link>
             </li>
             <li>
-              <Link to="/notifications">
+              <Link to="/farmer/riskalerts">
                 <FaBell className="nav-icon" />
                 <span>Notifications</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/farmer/damageclaim">
+                <FaBell className="nav-icon" />
+                <span>Damage Claim</span>
               </Link>
             </li>
             <li>
@@ -85,7 +91,7 @@ const SimpleDashboard = () => {
             </li>
           </ul>
         </nav>
-        
+
         <div className="sidebar-footer">
           <button onClick={handleLogout} className="logout-btn">
             <FaSignOutAlt />
@@ -93,7 +99,7 @@ const SimpleDashboard = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Main Content */}
       <div className="main-content">
         <header className="header">
@@ -105,7 +111,7 @@ const SimpleDashboard = () => {
             </div>
           </div>
         </header>
-        
+
         <div className="content">
           {/* Quick Stats */}
           <div className="stats-container">
@@ -122,7 +128,7 @@ const SimpleDashboard = () => {
               <p>New Notifications</p>
             </div>
           </div>
-          
+
           {/* Recent Activity */}
           <div className="activity-container">
             <h2>Recent Activity</h2>
@@ -156,7 +162,7 @@ const SimpleDashboard = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Quick Actions */}
           <div className="actions-container">
             <h2>Quick Actions</h2>
