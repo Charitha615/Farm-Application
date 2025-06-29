@@ -5,38 +5,40 @@ import {
   Tag, 
   Spin, 
   Badge, 
-  Tabs, 
-  Button, 
+  Button,
   Space,
   Avatar,
-  Divider,
-  notification
+  notification as antdNotification,
+  Alert,
+  Tabs
 } from 'antd';
 import { 
   BellOutlined, 
-  WarningOutlined, 
   CheckCircleOutlined,
   ClockCircleOutlined,
-  EnvironmentOutlined,
+  FileTextOutlined,
+  WarningOutlined,
+  ThunderboltOutlined,
   CloudOutlined,
-  BugOutlined,
-  FileTextOutlined
+  FireOutlined,
+  EnvironmentOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 import moment from 'moment';
 
 const { TabPane } = Tabs;
 
-const ALERTS_URL = 'http://localhost/firebase-auth/api/farmers/claims/alerts.php';
-const NOTIFICATIONS_URL = 'http://localhost/firebase-auth/api/farmers/claims/notifications.php';
+// API endpoints
+const NOTIFICATIONS_URL = 'http://localhost/firebase-auth/api/notifications/notification.php';
+const WEATHER_ALERTS_URL = 'https://api.weather.gov/alerts/active';
 
-const RiskAlertsPage = () => {
-  const [alerts, setAlerts] = useState([]);
+const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
-  const [loadingAlerts, setLoadingAlerts] = useState(false);
-  const [loadingNotifications, setLoadingNotifications] = useState(false);
-  const [activeTab, setActiveTab] = useState('alerts');
+  const [weatherAlerts, setWeatherAlerts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [weatherLoading, setWeatherLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('app');
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -44,249 +46,212 @@ const RiskAlertsPage = () => {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
-        fetchAlerts(parsedUser.uid);
         fetchNotifications(parsedUser.uid);
       } catch (error) {
-        notification.error({ message: 'Failed to parse user data' });
+        antdNotification.error({ message: 'Failed to parse user data' });
       }
     }
+
+    // Fetch weather alerts
+    fetchWeatherAlerts();
   }, []);
 
-  const fetchAlerts = async (farmerId) => {
+  const fetchNotifications = async (userId) => {
     try {
-      setLoadingAlerts(true);
-      const response = await axios.get(`${ALERTS_URL}?farmer_id=${farmerId}`);
-      const alertsData = response.data && typeof response.data === 'object' 
-        ? Object.entries(response.data).map(([key, value]) => ({ 
-            id: key, 
-            ...value,
-            timestamp: moment(value.timestamp).format('YYYY-MM-DD HH:mm'),
-            is_read: value.is_read === '1'
-          }))
-        : [];
-      setAlerts(alertsData);
-    } catch (error) {
-      notification.error({ message: 'Failed to fetch alerts' });
-    } finally {
-      setLoadingAlerts(false);
-    }
-  };
-
-  const fetchNotifications = async (farmerId) => {
-    try {
-      setLoadingNotifications(true);
-      const response = await axios.get(`${NOTIFICATIONS_URL}?user_id=${farmerId}`);
+      setLoading(true);
+      const response = await axios.get(`${NOTIFICATIONS_URL}?user_id=${userId}`);
+      
+      // Convert Firebase object to array and format data
       const notificationsData = response.data && typeof response.data === 'object' 
-        ? Object.entries(response.data).map(([key, value]) => ({ 
-            id: key, 
-            ...value,
-            timestamp: moment(value.timestamp).format('YYYY-MM-DD HH:mm'),
-            is_read: value.is_read === '1'
+        ? Object.entries(response.data).map(([id, notification]) => ({ 
+            id,
+            ...notification,
+            created_at: moment(notification.created_at).format('YYYY-MM-DD HH:mm'),
+            is_read: notification.is_read || false
           }))
         : [];
+      
+      // Sort by date (newest first)
+      notificationsData.sort((a, b) => moment(b.created_at).valueOf() - moment(a.created_at).valueOf());
+      
       setNotifications(notificationsData);
     } catch (error) {
-      notification.error({ message: 'Failed to fetch notifications' });
+      antdNotification.error({ message: 'Failed to fetch notifications' });
     } finally {
-      setLoadingNotifications(false);
+      setLoading(false);
     }
   };
 
-  const markAsRead = async (type, id) => {
+  const fetchWeatherAlerts = async () => {
     try {
-      const endpoint = type === 'alert' ? ALERTS_URL : NOTIFICATIONS_URL;
-      await axios.put(`${endpoint}?id=${id}`, { is_read: true });
+      setWeatherLoading(true);
+      const response = await axios.get(WEATHER_ALERTS_URL, {
+        headers: {
+          'User-Agent': 'YourAppName (your@email.com)', // Required by NWS API
+          'Accept': 'application/geo+json'
+        }
+      });
       
-      if (type === 'alert') {
-        setAlerts(alerts.map(alert => 
-          alert.id === id ? { ...alert, is_read: true } : alert
-        ));
-      } else {
-        setNotifications(notifications.map(notification => 
-          notification.id === id ? { ...notification, is_read: true } : notification
-        ));
-      }
+      // Process weather alerts
+      const alerts = response.data.features.map(alert => ({
+        id: alert.id,
+        title: alert.properties.headline,
+        message: alert.properties.description,
+        severity: alert.properties.severity,
+        type: alert.properties.event,
+        area: alert.properties.areaDesc,
+        effective: moment(alert.properties.effective).format('YYYY-MM-DD HH:mm'),
+        expires: moment(alert.properties.expires).format('YYYY-MM-DD HH:mm'),
+        is_read: false,
+        source: 'weather'
+      }));
       
-      notification.success({ message: 'Marked as read' });
+      setWeatherAlerts(alerts);
     } catch (error) {
-      notification.error({ message: 'Failed to update status' });
+      antdNotification.error({ 
+        message: 'Failed to fetch weather alerts',
+        description: error.message
+      });
+    } finally {
+      setWeatherLoading(false);
     }
   };
 
-  const markAllAsRead = async (type) => {
+  const markAsRead = async (notificationId) => {
     try {
-      const endpoint = type === 'alert' ? ALERTS_URL : NOTIFICATIONS_URL;
-      await axios.put(`${endpoint}?user_id=${user.uid}`, { mark_all_read: true });
+      await axios.post(`${NOTIFICATIONS_URL}?id=${notificationId}`);
       
-      if (type === 'alert') {
-        setAlerts(alerts.map(alert => ({ ...alert, is_read: true })));
-      } else {
-        setNotifications(notifications.map(notification => ({ ...notification, is_read: true })));
-      }
+      setNotifications(notifications.map(n => 
+        n.id === notificationId ? { ...n, is_read: true } : n
+      ));
       
-      notification.success({ message: 'All marked as read' });
+      antdNotification.success({ message: 'Marked as read' });
     } catch (error) {
-      notification.error({ message: 'Failed to update status' });
+      antdNotification.error({ message: 'Failed to update notification status' });
     }
   };
 
-  const getAlertIcon = (alertType) => {
-    switch (alertType) {
-      case 'weather':
-        return <CloudOutlined style={{ color: '#1890ff' }} />;
-      case 'pest':
-        return <BugOutlined style={{ color: '#f5222d' }} />;
-      case 'policy':
-        return <FileTextOutlined style={{ color: '#52c41a' }} />;
-      default:
-        return <WarningOutlined style={{ color: '#faad14' }} />;
+  const markAllAsRead = async () => {
+    if (!user) return;
+    
+    try {
+      // Find all unread notifications
+      const unreadIds = notifications
+        .filter(n => !n.is_read)
+        .map(n => n.id);
+      
+      // Mark each as read
+      await Promise.all(unreadIds.map(id => 
+        axios.post(`${NOTIFICATIONS_URL}?id=${id}`)
+      ));
+      
+      // Update local state
+      setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+      
+      antdNotification.success({ message: 'All notifications marked as read' });
+    } catch (error) {
+      antdNotification.error({ message: 'Failed to mark all as read' });
     }
   };
 
-  const getAlertColor = (alertType) => {
-    switch (alertType) {
-      case 'weather':
-        return 'blue';
-      case 'pest':
-        return 'red';
+  const getNotificationIcon = (relatedEntity) => {
+    switch (relatedEntity) {
+      case 'claim':
+        return <FileTextOutlined style={{ color: '#1890ff' }} />;
       case 'policy':
-        return 'green';
+        return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
       default:
-        return 'orange';
+        return <BellOutlined style={{ color: '#faad14' }} />;
     }
   };
+
+  const getWeatherAlertIcon = (alertType) => {
+    const lowerType = alertType.toLowerCase();
+    if (lowerType.includes('thunderstorm')) return <ThunderboltOutlined style={{ color: '#ffec3d' }} />;
+    if (lowerType.includes('flood')) return <CloudOutlined style={{ color: '#13c2c2' }} />;
+    if (lowerType.includes('fire')) return <FireOutlined style={{ color: '#ff4d4f' }} />;
+    if (lowerType.includes('tornado')) return <WarningOutlined style={{ color: '#f5222d' }} />;
+    return <WarningOutlined style={{ color: '#faad14' }} />;
+  };
+
+  const getNotificationTag = (relatedEntity) => {
+    switch (relatedEntity) {
+      case 'claim':
+        return { text: 'CLAIM', color: 'blue' };
+      case 'policy':
+        return { text: 'POLICY', color: 'green' };
+      default:
+        return { text: 'SYSTEM', color: 'orange' };
+    }
+  };
+
+  const getWeatherAlertTag = (severity) => {
+    switch (severity.toLowerCase()) {
+      case 'extreme':
+        return { text: 'EXTREME', color: 'red' };
+      case 'severe':
+        return { text: 'SEVERE', color: 'volcano' };
+      case 'moderate':
+        return { text: 'MODERATE', color: 'orange' };
+      case 'minor':
+        return { text: 'MINOR', color: 'gold' };
+      default:
+        return { text: 'UNKNOWN', color: 'gray' };
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const weatherAlertCount = weatherAlerts.length;
 
   return (
-    <div className="risk-alerts-page">
-      <Card>
+    <div className="notifications-page" style={{ padding: '24px' }}>
+      <Card
+        title={
+          <Space>
+            <BellOutlined />
+            Notifications
+            {activeTab === 'app' && unreadCount > 0 && (
+              <Badge count={unreadCount} style={{ marginLeft: 8 }} />
+            )}
+            {activeTab === 'weather' && weatherAlertCount > 0 && (
+              <Badge count={weatherAlertCount} style={{ marginLeft: 8 }} />
+            )}
+          </Space>
+        }
+      >
         <Tabs activeKey={activeTab} onChange={setActiveTab}>
-          <TabPane
-            tab={
-              <span>
-                <WarningOutlined />
-                Risk Alerts
-                {alerts.filter(a => !a.is_read).length > 0 && (
-                  <Badge
-                    count={alerts.filter(a => !a.is_read).length}
-                    style={{ marginLeft: 8 }}
-                  />
-                )}
-              </span>
-            }
-            key="alerts"
-          >
-            <Spin spinning={loadingAlerts}>
-              <div style={{ textAlign: 'right', marginBottom: 16 }}>
-                <Button
-                  type="link"
-                  onClick={() => markAllAsRead('alert')}
-                  disabled={alerts.filter(a => !a.is_read).length === 0}
-                >
-                  Mark all as read
-                </Button>
-              </div>
-              
-              <List
-                itemLayout="horizontal"
-                dataSource={alerts}
-                renderItem={alert => (
-                  <List.Item
-                    style={{ 
-                      background: alert.is_read ? '#fff' : '#f6ffed',
-                      padding: '12px 16px',
-                      borderBottom: '1px solid #f0f0f0'
-                    }}
-                    actions={[
-                      !alert.is_read && (
-                        <Button
-                          type="link"
-                          size="small"
-                          onClick={() => markAsRead('alert', alert.id)}
-                        >
-                          Mark as read
-                        </Button>
-                      )
-                    ]}
-                  >
-                    <List.Item.Meta
-                      avatar={
-                        <Badge dot={!alert.is_read}>
-                          <Avatar icon={getAlertIcon(alert.alert_type)} />
-                        </Badge>
-                      }
-                      title={
-                        <Space>
-                          <Tag color={getAlertColor(alert.alert_type)}>
-                            {alert.alert_type.toUpperCase()}
-                          </Tag>
-                          {alert.title}
-                        </Space>
-                      }
-                      description={
-                        <>
-                          <div>{alert.message}</div>
-                          <div style={{ marginTop: 4 }}>
-                            <small style={{ color: '#999' }}>
-                              {alert.timestamp}
-                              {alert.location && (
-                                <>
-                                  {' • '}
-                                  <EnvironmentOutlined /> {alert.location}
-                                </>
-                              )}
-                            </small>
-                          </div>
-                        </>
-                      }
-                    />
-                  </List.Item>
-                )}
-              />
-            </Spin>
-          </TabPane>
-          
-          <TabPane
+          <TabPane 
             tab={
               <span>
                 <BellOutlined />
-                Notifications
-                {notifications.filter(n => !n.is_read).length > 0 && (
-                  <Badge
-                    count={notifications.filter(n => !n.is_read).length}
-                    style={{ marginLeft: 8 }}
-                  />
-                )}
+                App Notifications
+                {unreadCount > 0 && <Badge count={unreadCount} style={{ marginLeft: 8 }} />}
               </span>
-            }
-            key="notifications"
+            } 
+            key="app"
           >
-            <Spin spinning={loadingNotifications}>
-              <div style={{ textAlign: 'right', marginBottom: 16 }}>
-                <Button
-                  type="link"
-                  onClick={() => markAllAsRead('notification')}
-                  disabled={notifications.filter(n => !n.is_read).length === 0}
-                >
-                  Mark all as read
-                </Button>
-              </div>
-              
+            <Spin spinning={loading}>
               <List
                 itemLayout="horizontal"
                 dataSource={notifications}
-                renderItem={notification => (
+                renderItem={item => (
                   <List.Item
                     style={{ 
-                      background: notification.is_read ? '#fff' : '#f6ffed',
+                      background: item.is_read ? '#fff' : '#f6ffed',
                       padding: '12px 16px',
-                      borderBottom: '1px solid #f0f0f0'
+                      borderBottom: '1px solid #f0f0f0',
+                      cursor: 'pointer'
                     }}
+                    onClick={() => !item.is_read && markAsRead(item.id)}
                     actions={[
-                      !notification.is_read && (
+                      !item.is_read && (
                         <Button
                           type="link"
                           size="small"
-                          onClick={() => markAsRead('notification', notification.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markAsRead(item.id);
+                          }}
                         >
                           Mark as read
                         </Button>
@@ -295,45 +260,29 @@ const RiskAlertsPage = () => {
                   >
                     <List.Item.Meta
                       avatar={
-                        <Badge dot={!notification.is_read}>
-                          <Avatar 
-                            icon={
-                              notification.type === 'claim' ? <FileTextOutlined /> :
-                              notification.type === 'policy' ? <CheckCircleOutlined /> :
-                              <BellOutlined />
-                            }
-                          />
+                        <Badge dot={!item.is_read}>
+                          <Avatar icon={getNotificationIcon(item.related_entity)} />
                         </Badge>
                       }
                       title={
                         <Space>
-                          <Tag color={
-                            notification.type === 'claim' ? 'blue' :
-                            notification.type === 'policy' ? 'green' :
-                            'orange'
-                          }>
-                            {notification.type.toUpperCase()}
+                          <Tag color={getNotificationTag(item.related_entity).color}>
+                            {getNotificationTag(item.related_entity).text}
                           </Tag>
-                          {notification.title}
+                          {item.title}
                         </Space>
                       }
                       description={
                         <>
-                          <div>{notification.message}</div>
+                          <div>{item.message}</div>
                           <div style={{ marginTop: 4 }}>
                             <small style={{ color: '#999' }}>
-                              {notification.timestamp}
+                              {item.created_at}
                             </small>
                           </div>
-                          {notification.action_url && (
+                          {item.related_entity_id && (
                             <div style={{ marginTop: 8 }}>
-                              <Button
-                                type="link"
-                                size="small"
-                                href={notification.action_url}
-                              >
-                                View Details
-                              </Button>
+                              {/* View Details button can be uncommented if needed */}
                             </div>
                           )}
                         </>
@@ -344,10 +293,78 @@ const RiskAlertsPage = () => {
               />
             </Spin>
           </TabPane>
+
+          <TabPane 
+            tab={
+              <span>
+                <ThunderboltOutlined />
+                Weather Alerts
+                {weatherAlertCount > 0 && <Badge count={weatherAlertCount} style={{ marginLeft: 8 }} />}
+              </span>
+            } 
+            key="weather"
+          >
+            <Alert 
+              message="Weather alerts are provided by the National Weather Service API"
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+            
+            <Spin spinning={weatherLoading}>
+              <List
+                itemLayout="horizontal"
+                dataSource={weatherAlerts}
+                renderItem={item => (
+                  <List.Item
+                    style={{ 
+                      padding: '12px 16px',
+                      borderBottom: '1px solid #f0f0f0',
+                    }}
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar icon={getWeatherAlertIcon(item.type)} />
+                      }
+                      title={
+                        <Space>
+                          <Tag color={getWeatherAlertTag(item.severity).color}>
+                            {getWeatherAlertTag(item.severity).text}
+                          </Tag>
+                          {item.title}
+                        </Space>
+                      }
+                      description={
+                        <>
+                          <div>
+                            <EnvironmentOutlined /> {item.area}
+                          </div>
+                          <div style={{ marginTop: 8 }}>{item.message}</div>
+                          <div style={{ marginTop: 8 }}>
+                            <Space>
+                              <small style={{ color: '#999' }}>
+                                <ClockCircleOutlined /> Effective: {item.effective}
+                              </small>
+                              <small style={{ color: '#999' }}>
+                                Expires: {item.expires}
+                              </small>
+                            </Space>
+                          </div>
+                        </>
+                      }
+                    />
+                  </List.Item>
+                )}
+                locale={{
+                  emptyText: 'No active weather alerts in your region'
+                }}
+              />
+            </Spin>
+          </TabPane>
         </Tabs>
       </Card>
     </div>
   );
 };
 
-export default RiskAlertsPage;
+export default NotificationsPage;
