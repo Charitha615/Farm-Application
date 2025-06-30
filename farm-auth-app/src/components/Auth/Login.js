@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaSignInAlt, FaExclamationCircle, FaSpinner, FaUserShield, FaUserTie, FaUser } from 'react-icons/fa';
+import { FaSignInAlt, FaExclamationCircle, FaSpinner, FaUserTie, FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import '../../css/Login.css';
 
 const Login = () => {
@@ -9,6 +9,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
@@ -19,14 +20,14 @@ const Login = () => {
     setError('');
     setIsLoading(true);
 
-    // 1. Check for hardcoded admin credentials (NO API CALL)
+    // 1. Check for hardcoded admin credentials
     if (email === 'admin@admin' && password === 'admin') {
       setIsLoading(false);
       navigate('/admin/dashboard');
       return;
     }
 
-    // 2. Check for hardcoded inspector credentials (NO API CALL)
+    // 2. Check for hardcoded inspector credentials
     if (email === 'inspector@inspector' && password === 'inspector') {
       setIsLoading(false);
       navigate('/inspector/dashboard');
@@ -50,7 +51,6 @@ const Login = () => {
         const data = await response.json();
 
         if (data.exists) {
-          // Store inspector data in local storage or context
           localStorage.setItem('inspector', JSON.stringify(data.user));
           navigate('/inspector/dashboard');
         } else {
@@ -62,7 +62,7 @@ const Login = () => {
         setIsLoading(false);
       }
     } else {
-      // Farmer login (existing AuthContext login)
+      // Farmer login
       try {
         await login(email, password);
         navigate('/dashboard');
@@ -79,20 +79,24 @@ const Login = () => {
       <div className="login-card">
         <div className="login-header">
           <div className="login-icon">
-            {userType === 'inspector' ? <FaUserTie /> : <FaUser />}
+            {userType === 'inspector' ? <FaUserTie size={28} /> : <FaUser size={28} />}
           </div>
           <h2>Welcome to FarmConnect</h2>
           <p>Manage your agricultural operations with ease</p>
           
-          <div className="user-type-selector">
-            <select 
-              value={userType} 
-              onChange={(e) => setUserType(e.target.value)}
-              className="user-type-dropdown"
+          <div className="user-type-tabs">
+            <button
+              className={`tab ${userType === 'farmer' ? 'active' : ''}`}
+              onClick={() => setUserType('farmer')}
             >
-              <option value="farmer">Farmer</option>
-              <option value="inspector">Inspector</option>
-            </select>
+              <FaUser className="tab-icon" /> Farmer
+            </button>
+            <button
+              className={`tab ${userType === 'inspector' ? 'active' : ''}`}
+              onClick={() => setUserType('inspector')}
+            >
+              <FaUserTie className="tab-icon" /> Inspector
+            </button>
           </div>
         </div>
 
@@ -106,42 +110,56 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className={error ? 'input-error' : ''}
-            />
+            <div className="input-with-icon">
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                className={error ? 'input-error' : ''}
+              />
+            </div>
           </div>
 
           {userType === 'inspector' ? (
             <div className="form-group">
               <label htmlFor="phone">Phone Number</label>
-              <input
-                type="tel"
-                id="phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Enter your phone number"
-                required
-                className={error ? 'input-error' : ''}
-              />
+              <div className="input-with-icon">
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Enter your phone number"
+                  required
+                  className={error ? 'input-error' : ''}
+                />
+              </div>
             </div>
           ) : (
             <div className="form-group">
               <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                className={error ? 'input-error' : ''}
-              />
+              <div className="input-with-icon password-input">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  className={error ? 'input-error' : ''}
+                />
+                <button 
+                  type="button" 
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
           )}
 
@@ -169,19 +187,15 @@ const Login = () => {
             {userType === 'farmer' && (
               <>
                 <Link to="/register">Create an account</Link>
-                <span>•</span>
+                <span className="divider">•</span>
+                {/* <Link to="/forgot-password">Forgot password?</Link> */}
               </>
             )}
-            <Link to="/forgot-password">Reset password</Link>
           </div>
           <div className="footer-text">
             <p>By continuing, you agree to our <Link to="/terms">Terms of Service</Link></p>
           </div>
         </div>
-      </div>
-
-      <div className="login-background">
-        <div className="background-overlay"></div>
       </div>
     </div>
   );

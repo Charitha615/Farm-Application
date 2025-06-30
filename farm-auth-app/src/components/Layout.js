@@ -68,7 +68,7 @@ const Layout = ({ children }) => {
                 </Link>
                 <Link 
                   to="/register" 
-                  className="register-button"
+                  className="register-button-top"
                 >
                   <FaUserPlus className="button-icon" />
                   <span>Register</span>

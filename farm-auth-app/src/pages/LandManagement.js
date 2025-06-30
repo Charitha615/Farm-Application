@@ -52,6 +52,14 @@ const LandManagement = () => {
         applyFilters();
     }, [lands, filters, searchTerm]);
 
+    const fixDocumentUrl = (url) => {
+        if (!url) return null;
+        return url.replace(
+            'http://localhost:3000/uploads/',
+            'http://localhost/firebase-auth/uploads/'
+        );
+    };
+
     const fetchLands = async () => {
         try {
             setLoading(true);
@@ -177,13 +185,32 @@ const LandManagement = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const url = mode === 'add'
-                ? 'http://localhost/firebase-auth/api/farmers/lands/list.php'
-                : `http://localhost/firebase-auth/api/farmers/lands/list.php?id=${currentLandId}`;
 
-            const method = mode === 'add' ? 'POST' : 'PUT';
+            let uploadedDocumentUrl = null;
 
-            // Prepare JSON data
+            // 1. Upload the document if selected
+            if (documentFile) {
+                const formData = new FormData();
+                formData.append('files[]', documentFile); // ensure it's an array name
+
+                const uploadRes = await axios.post(
+                    'http://localhost/firebase-auth/api/upload.php',
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                );
+
+                if (uploadRes.data.success && uploadRes.data.filePaths.length > 0) {
+                    uploadedDocumentUrl = uploadRes.data.filePaths[0]; // use only the first file
+                } else {
+                    throw new Error('File upload failed');
+                }
+            }
+
+            // 2. Prepare land JSON
             const landData = {
                 farmer_uid: farmerUid,
                 name: formData.name,
@@ -194,30 +221,32 @@ const LandManagement = () => {
                 description: formData.description
             };
 
-            // Add status for edit mode
+            // Add document_url if file was uploaded (can be null)
+            landData.document_url = uploadedDocumentUrl || null;
+
             if (mode === 'edit') {
                 landData.status = formData.status;
             }
 
-            /* File upload commented out
-            if (documentFile) {
-                landData.document = documentFile;
-            }
-            */
+            const url = mode === 'add'
+                ? 'http://localhost/firebase-auth/api/farmers/lands/list.php'
+                : `http://localhost/firebase-auth/api/farmers/lands/list.php?id=${currentLandId}`;
 
+            const method = mode === 'add' ? 'POST' : 'PUT';
+
+            // 3. Send land data
             const response = await axios({
                 method,
                 url,
                 data: landData,
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json' // Changed to JSON
+                    'Content-Type': 'application/json'
                 }
             });
 
             setSuccess(`Land ${mode === 'add' ? 'added' : 'updated'} successfully!`);
-            fetchLands(); // Refresh the list
-
+            fetchLands(); // reload list
             setTimeout(() => {
                 setMode('list');
             }, 1500);
@@ -390,7 +419,7 @@ const LandManagement = () => {
 
                                         {land.document_url && (
                                             <div className="land-document">
-                                                <a href={land.document_url} target="_blank" rel="noopener noreferrer">
+                                                <a href={fixDocumentUrl(land.document_url)} target="_blank" rel="noopener noreferrer">
                                                     View Document
                                                 </a>
                                             </div>

@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/../../config.php';
+require __DIR__ . '/../config.php';
 
 // Set CORS headers
 header("Access-Control-Allow-Origin: http://localhost:3000");
@@ -8,14 +8,14 @@ header("Access-Control-Allow-Headers: Content-Type, X-Requested-With");
 header("Access-Control-Max-Age: 3600");
 header("Content-Type: application/json");
 
-// Allow preflight requests
+// Handle preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
 // Create uploads directory if it doesn't exist
-$uploadDir = __DIR__ . '/../../uploads/';
+$uploadDir = __DIR__ . '/../uploads/';
 if (!file_exists($uploadDir)) {
     if (!mkdir($uploadDir, 0777, true)) {
         http_response_code(500);
@@ -24,34 +24,64 @@ if (!file_exists($uploadDir)) {
     }
 }
 
+// Main POST handling
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if (!isset($_FILES['files'])) {
             throw new Exception('No files uploaded');
         }
 
+        // Normalize single vs multiple file uploads
+        $normalizedFiles = [];
+
+        if (is_array($_FILES['files']['name'])) {
+            // Multiple files
+            foreach ($_FILES['files']['name'] as $index => $name) {
+                $normalizedFiles[] = [
+                    'name' => $_FILES['files']['name'][$index],
+                    'type' => $_FILES['files']['type'][$index],
+                    'tmp_name' => $_FILES['files']['tmp_name'][$index],
+                    'error' => $_FILES['files']['error'][$index],
+                    'size' => $_FILES['files']['size'][$index]
+                ];
+            }
+        } else {
+            // Single file
+            $normalizedFiles[] = $_FILES['files'];
+        }
+
         $filePaths = [];
-        foreach ($_FILES['files']['tmp_name'] as $key => $tmpName) {
-            // Validate file
-            $fileSize = $_FILES['files']['size'][$key];
-            $fileType = $_FILES['files']['type'][$key];
-            
-            if ($fileSize > 10 * 1024 * 1024) { // 10MB limit
+        $baseUrl = 'http://localhost/firebase-auth'; // Base URL for the file paths
+
+        foreach ($normalizedFiles as $file) {
+            // Validate size
+            if ($file['size'] > 10 * 1024 * 1024) {
                 throw new Exception('File size exceeds 10MB limit');
             }
+
+            // Validate type
+            $allowedTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/gif',
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ];
             
-            if (!preg_match('/^image\/(jpeg|png|gif)|video\/(mp4|mov)$/', $fileType)) {
-                throw new Exception('Invalid file type. Only images (JPEG, PNG, GIF) and videos (MP4, MOV) are allowed');
+            if (!in_array($file['type'], $allowedTypes)) {
+                throw new Exception('Invalid file type. Only images (JPEG, PNG, GIF) and documents (PDF, DOC, DOCX) allowed');
             }
 
-            // Generate safe filename
-            $fileName = basename($_FILES['files']['name'][$key]);
+            // Save file
+            $fileName = basename($file['name']);
             $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
             $newFileName = uniqid() . '_' . bin2hex(random_bytes(8)) . '.' . $fileExt;
             $filePath = $uploadDir . $newFileName;
 
-            if (move_uploaded_file($tmpName, $filePath)) {
-                $filePaths[] = '/uploads/' . $newFileName;
+            if (move_uploaded_file($file['tmp_name'], $filePath)) {
+                // Return full URL with correct base path
+                $filePaths[] = $baseUrl . '/uploads/' . $newFileName;
             } else {
                 throw new Exception('Failed to move uploaded file');
             }
@@ -77,6 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
+// Method not allowed
 http_response_code(405);
 echo json_encode(['error' => 'Method not allowed']);
-?>

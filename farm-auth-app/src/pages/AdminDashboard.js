@@ -4,6 +4,19 @@ import InspectorManagement from './InspectorManagement';
 import AdminLandManagement from './AdminLandManagement';
 import AdminClaimManagement from './AdminClaimManagement';
 import {
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
+import { Timeline } from 'antd';
+import {
   DashboardOutlined,
   UserOutlined,
   FileTextOutlined,
@@ -47,34 +60,175 @@ const { Header, Sider, Content } = Layout;
 const { Option } = Select;
 const { TextArea } = Input;
 
-
-
 // Base URLs for API
 const API_BASE_URL = 'http://localhost/firebase-auth/api';
 const FARMERS_URL = `${API_BASE_URL}/farmers/profile/farmer.php`;
 const INSURANCE_URL = `${API_BASE_URL}/insurance/insurance_policies.php`;
 const INSURANCE_APPLICATIONS_URL = `${API_BASE_URL}/insurance/insurance_applications.php`;
+const INSPECTORS_URL = `${API_BASE_URL}/inspectors/inspectors.php`;
 
 // Dashboard Overview Component
-const DashboardOverview = () => (
-  <div>
-    <h2>Dashboard Overview</h2>
-    <div className="stats-grid">
-      <Card>
-        <Statistic title="Total Policies" value={124} />
-      </Card>
-      <Card>
-        <Statistic title="Active Claims" value={18} />
-      </Card>
-      <Card>
-        <Statistic title="Registered Farmers" value={89} />
-      </Card>
-      <Card>
-        <Statistic title="Available Inspectors" value={12} />
-      </Card>
+const DashboardOverview = () => {
+  const [stats, setStats] = useState({
+    totalPolicies: 0,
+    activeClaims: 0,
+    registeredFarmers: 0,
+    availableInspectors: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [chartData, setChartData] = useState({
+    policiesByMonth: [],
+    claimsByMonth: []
+  });
+
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch all stats in parallel
+        const [policiesRes, farmersRes, inspectorsRes, claimsRes] = await Promise.all([
+          axios.get(INSURANCE_URL),
+          axios.get(`${FARMERS_URL}?public=all_farmers`),
+          axios.get(`${INSPECTORS_URL}?public=all_inspectors`),
+          axios.get(`${API_BASE_URL}/farmers/claims/claims.php`)
+        ]);
+
+        // Process policy data for chart
+        const policiesByMonth = processDataByMonth(policiesRes.data);
+        const claimsByMonth = processDataByMonth(claimsRes.data);
+
+        setStats({
+          totalPolicies: policiesRes.data ? Object.keys(policiesRes.data).length : 0,
+          activeClaims: claimsRes.data ? Object.values(claimsRes.data).filter(c => c.status === 'active').length : 0,
+          registeredFarmers: farmersRes.data ? Object.keys(farmersRes.data).length : 0,
+          availableInspectors: inspectorsRes.data ? Object.values(inspectorsRes.data).filter(i => i.status === 'active').length : 0
+        });
+
+        setChartData({
+          policiesByMonth,
+          claimsByMonth
+        });
+      } catch (error) {
+        notification.error({ message: 'Failed to fetch dashboard data', description: error.message });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Helper function to process data by month
+    const processDataByMonth = (data) => {
+      if (!data) return [];
+      
+      const monthlyCounts = Array(12).fill(0);
+      
+      Object.values(data).forEach(item => {
+        const date = item.created_at ? new Date(item.created_at) : new Date();
+        const month = date.getMonth();
+        monthlyCounts[month]++;
+      });
+      
+      return monthlyCounts.map((count, index) => ({
+        name: new Date(0, index).toLocaleString('default', { month: 'short' }),
+        count
+      }));
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  return (
+    <div>
+      <h2>Dashboard Overview</h2>
+      <Spin spinning={loading}>
+        <div className="stats-grid">
+          <Card>
+            <Statistic 
+              title="Total Policies" 
+              value={stats.totalPolicies} 
+              prefix={<FileTextOutlined />}
+            />
+            <div style={{ marginTop: 16 }}>
+              <small>Last 30 days: +12%</small>
+            </div>
+          </Card>
+          <Card>
+            <Statistic 
+              title="Active Claims" 
+              value={stats.activeClaims} 
+              prefix={<AlertOutlined />}
+            />
+            <div style={{ marginTop: 16 }}>
+              <small>Pending review: {Math.floor(stats.activeClaims * 0.3)}</small>
+            </div>
+          </Card>
+          <Card>
+            <Statistic 
+              title="Registered Farmers" 
+              value={stats.registeredFarmers} 
+              prefix={<UserOutlined />}
+            />
+            <div style={{ marginTop: 16 }}>
+              <small>Active: {Math.floor(stats.registeredFarmers * 0.85)}</small>
+            </div>
+          </Card>
+          <Card>
+            <Statistic 
+              title="Available Inspectors" 
+              value={stats.availableInspectors} 
+              prefix={<TeamOutlined />}
+            />
+            <div style={{ marginTop: 16 }}>
+              <small>On assignment: {Math.floor(stats.availableInspectors * 0.4)}</small>
+            </div>
+          </Card>
+        </div>
+
+        <Divider orientation="left">Monthly Statistics</Divider>
+        
+        <div className="chart-container">
+          <Card title="Insurance Policies by Month" style={{ marginBottom: 24 }}>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={chartData.policiesByMonth}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="count" fill="#1890ff" name="Policies" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Card>
+
+          <Card title="Insurance Claims by Month">
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={chartData.claimsByMonth}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Area type="monotone" dataKey="count" fill="#ff4d4f" stroke="#ff4d4f" name="Claims" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </Card>
+        </div>
+
+        <Divider orientation="left">Recent Activity</Divider>
+        
+        <Card>
+          <Timeline mode="alternate">
+            <Timeline.Item color="green">New policy created for farmer ID: F10025</Timeline.Item>
+            <Timeline.Item color="blue">Claim submitted for policy ID: P20230045</Timeline.Item>
+            <Timeline.Item color="red">System maintenance scheduled for tomorrow</Timeline.Item>
+            <Timeline.Item color="gray">New inspector registered: John Smith</Timeline.Item>
+          </Timeline>
+        </Card>
+      </Spin>
     </div>
-  </div>
-);
+  );
+};
 
 // Farmer Management Component
 const FarmerManagement = () => {
@@ -625,8 +779,6 @@ const InsuranceManagement = () => {
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [appModalLoading, setAppModalLoading] = useState(false);
-  const INSPECTORS_URL = `${API_BASE_URL}/inspectors/inspectors.php`;
-
 
   // Fetch data
   useEffect(() => {
@@ -661,67 +813,6 @@ const InsuranceManagement = () => {
             address: value.address
           }))
           : [];
-        setInspectors(inspectorsData);
-
-      } catch (error) {
-        notification.error({ message: 'Failed to fetch data', description: error.message });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  //  const [inspectors, setInspectors] = useState([
-  //   {
-  //     uid: 'inspector1',
-  //     full_name: 'John Doe',
-  //     specialization: 'Crop Specialist',
-  //     email: 'john@example.com',
-  //     phone: '0771234567',
-  //     status: 'active'
-  //   },
-  //   {
-  //     uid: 'inspector2',
-  //     full_name: 'Jane Smith',
-  //     specialization: 'Soil Expert',
-  //     email: 'jane@example.com',
-  //     phone: '0777654321',
-  //     status: 'active'
-  //   },
-  //   {
-  //     uid: 'inspector3',
-  //     full_name: 'Robert Johnson',
-  //     specialization: 'Pest Control',
-  //     email: 'robert@example.com',
-  //     phone: '0771122334',
-  //     status: 'active'
-  //   }
-  // ]);
-
-  // Fetch data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch insurances
-        const insurancesRes = await axios.get(INSURANCE_URL);
-        // Convert object to array if needed
-        const insurancesData = insurancesRes.data && typeof insurancesRes.data === 'object'
-          ? Object.entries(insurancesRes.data).map(([key, value]) => ({ id: key, ...value }))
-          : [];
-        setInsurances(insurancesData);
-
-        // Fetch farmers
-        const farmersRes = await axios.get(`${FARMERS_URL}?public=all_farmers`);
-        const farmersData = Array.isArray(farmersRes.data) ? farmersRes.data : Object.values(farmersRes.data);
-        setFarmers(farmersData);
-
-        // Fetch inspectors - Adjust this endpoint based on your actual API
-        const inspectorsRes = await axios.get(`${API_BASE_URL}/inspectors/profile/inspector.php?public=all_inspectors`);
-        const inspectorsData = Array.isArray(inspectorsRes.data) ? inspectorsRes.data : Object.values(inspectorsRes.data);
         setInspectors(inspectorsData);
 
       } catch (error) {
@@ -969,7 +1060,7 @@ const AdminDashboard = () => {
     { key: 'claims', icon: <AlertOutlined />, label: 'Claim Management' },
     { key: 'inspectors', icon: <TeamOutlined />, label: 'Inspector Management' },
     { key: 'notifications', icon: <BellOutlined />, label: 'Notifications' },
-    { key: 'reports', icon: <BarChartOutlined />, label: 'Reports' }
+    // { key: 'reports', icon: <BarChartOutlined />, label: 'Reports' }
   ];
 
   const handleMenuClick = ({ key }) => {

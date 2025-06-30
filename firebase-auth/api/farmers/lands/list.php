@@ -99,6 +99,7 @@ try {
             // Optional fields
             if (!empty($input['coordinates'])) $landData['coordinates'] = $input['coordinates'];
             if (!empty($input['description'])) $landData['description'] = $input['description'];
+            if (isset($input['document_url'])) $landData['document_url'] = $input['document_url']; // Add document_url if provided
 
             $newLandRef = $database->getReference('lands')->push($landData);
             
@@ -128,7 +129,7 @@ try {
                 throw new Exception('Invalid JSON input', 400);
             }
 
-            $updatableFields = ['name', 'province', 'district', 'size', 'coordinates', 'description', 'status'];
+            $updatableFields = ['name', 'province', 'district', 'size', 'coordinates', 'description', 'status', 'document_url'];
             $updateData = [];
 
             foreach ($updatableFields as $field) {
