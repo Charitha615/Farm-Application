@@ -1,0 +1,1969 @@
+{
+	"info": {
+		"_postman_id": "01aa1fe4-e30a-4bce-9ea5-cab91ae1c5fc",
+		"name": "insurance-backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Farmer ",
+			"item": [
+				{
+					"name": "Profile Management",
+					"item": [
+						{
+							"name": "Get Profile",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6Ijg3NzQ4NTAwMmYwNWJlMDI2N2VmNDU5ZjViNTEzNTMzYjVjNThjMTIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGhwLWJhY2tlbmQtZGQ2ZDAiLCJhdWQiOiJwaHAtYmFja2VuZC1kZDZkMCIsImF1dGhfdGltZSI6MTc1MTIxODI1NywidXNlcl9pZCI6InB1ODlxb0FobWlUbHUzUjZ4OFBEQ1ZlbHVHSzIiLCJzdWIiOiJwdTg5cW9BaG1pVGx1M1I2eDhQRENWZWx1R0syIiwiaWF0IjoxNzUxMjE4MjU3LCJleHAiOjE3NTEyMjE4NTcsImVtYWlsIjoiaG9kQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJob2RAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.XBupCnpjPI_cn2TIvB1HeD2nQO11JuSB5tmavYNeIrBIit8zfduBuOpd95P7kb4ESy_W5nSGwQWBQjjxZOmnhTdhv4ZwtodVhUiqln1jqD1UFxqyTrnjJOudEJVYtp8UxHdBIQTpKPVH6NGB6y4tuXxhN1z8gdmgNLtBtTblov1fz7yXhnp4pNzum_JeVU4adaKwcWx_AFbZGcTHLk7MeAvI7snYrcCca-qpnxYhZfZEwiEDIeXQOv3GjR63-gsGFJUm_2dwVnw-A3hivwFkby_-_eDtz0XcLTzvU2wwVd9rYRtecjEN5AF5uaodNegibr1A32mg7ne6286sd9i_Nw",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/profile",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Profile ALL",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/profile/farmer.php?public=all_farmers",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"profile",
+										"farmer.php"
+									],
+									"query": [
+										{
+											"key": "public",
+											"value": "all_farmers"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Profile",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"full_name\": \"John Updated\",\n  \"phone\": \"+94771234568\",\n  \"address\": \"456 New Farm Road\",\n  \"language\": \"si\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/profile",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Profile",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"full_name\": \"John Updated\",\n  \"phone\": \"+94771234568\",\n  \"address\": \"456 New Farm Road\",\n  \"language\": \"si\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/profile/farmer.php?delete_user=8EcblThrQicrMJU9Aok0Ht1AGya2",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"profile",
+										"farmer.php"
+									],
+									"query": [
+										{
+											"key": "delete_user",
+											"value": "8EcblThrQicrMJU9Aok0Ht1AGya2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Document",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "document",
+											"type": "file",
+											"src": "/path/to/nic_front.jpg"
+										},
+										{
+											"key": "document_type",
+											"value": "nic_front",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/profile/documents",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"profile",
+										"documents"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "http://localhost/firebase-auth/api/farmers/get_farmer_by_id.php?id=W2RRO39yfiMngXU27ljg2XubP0A2",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/get_farmer_by_id.php?id=W2RRO39yfiMngXU27ljg2XubP0A2",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"get_farmer_by_id.php"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "W2RRO39yfiMngXU27ljg2XubP0A2"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Authentication",
+					"item": [
+						{
+							"name": "Register Farmer",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"full_name\": \"John Doe\",\n  \"nic\": \"123456789V\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"+94771234567\",\n  \"password\": \"password123\",\n  \"address\": \"123 Farm Road, Colombo\",\n  \"language\": \"en\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/register",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login Farmer",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Forgot Password",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"john@example.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/forgot-password",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"forgot-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Change Password",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"current_password\": \"oldpassword\",\n  \"new_password\": \"newpassword123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/change-password",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"change-password"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Land Management",
+					"item": [
+						{
+							"name": "List Lands",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjNiZjA1MzkxMzk2OTEzYTc4ZWM4MGY0MjcwMzM4NjM2NDA2MTBhZGMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGhwLWJhY2tlbmQtZGQ2ZDAiLCJhdWQiOiJwaHAtYmFja2VuZC1kZDZkMCIsImF1dGhfdGltZSI6MTc1MDQxMDk4OSwidXNlcl9pZCI6IlcyUlJPMzl5ZmlNbmdYVTI3bGpnMlh1YlAwQTIiLCJzdWIiOiJXMlJSTzM5eWZpTW5nWFUyN2xqZzJYdWJQMEEyIiwiaWF0IjoxNzUwNDEwOTg5LCJleHAiOjE3NTA0MTQ1ODksImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJqb2huQGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.WDfej4oSCCbrCvr-zj6VIbAle4FJFUlDx5j68il4RtLrKG8IdX8cQLXqoxAUazWcdlXomYDQH_s_nASJDyrjA3tDS0i7DpcdytpWV0Cr2k7xEey2nuItl2hG3cMvCp3xbkHgMngd9BAKY_5Kt22WjtcHEMbqnff_CBRJnealtnogqHlPXIppMWnUoXAKbJGeq16Za5cqrlgM9BInb9YFP4PVZAQQY778xwbxIvFfjgSMAyvpBAT_ZZacwPGFbSW_tRNFJGfFKB3i6KONIp0H-kblBNT75gomvhKFxep_ajLCdwqUtxah5IgmyCSqT5yBsoDaMdfqUnwMQMuoLVI18A",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/lands/list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"lands",
+										"list"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Land",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImE0YTEwZGVjZTk4MzY2ZDZmNjNlMTY3Mjg2YWU5YjYxMWQyYmFhMjciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGhwLWJhY2tlbmQtZGQ2ZDAiLCJhdWQiOiJwaHAtYmFja2VuZC1kZDZkMCIsImF1dGhfdGltZSI6MTc1MDM5NzM4MywidXNlcl9pZCI6IlcyUlJPMzl5ZmlNbmdYVTI3bGpnMlh1YlAwQTIiLCJzdWIiOiJXMlJSTzM5eWZpTW5nWFUyN2xqZzJYdWJQMEEyIiwiaWF0IjoxNzUwMzk3MzgzLCJleHAiOjE3NTA0MDA5ODMsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJqb2huQGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.kJ2C0w98_9tXbj152rz6Uh2ZBWg9yLIkYsXYeunnPX7Ui3Xa3WK-U9H95Jszoa9UoBobBj6kawATk3aGUIsbou44jjbNsOMUfdEmTh1sZrGgA3SjtABMiZE9OEPs1ElraXVaQOUtyxyjurWh51nLEyism88b0WzgHfyowqP1BH_cvUQgNkZt7onVQk_Boj_BVjhuVoJchUoBou2NNt1Ibkd9J7kuK5IAHssLXI1a5gxqGpCF5DpsQ-p_BkbAohcD95p1txylN_gCUH7xNuP8hGVWSByyVEgYNvifC3MnhnClaktGDLgXL68BeVw3oeoG62ANiHC7vHNg9F-iFae0tA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"My Paddy Field\",\n  \"province\": \"Western\",\n  \"district\": \"Colombo\",\n  \"size\": 2.5,\n  \"coordinates\": \"6.9271,79.8612\",\n  \"description\": \"Main paddy cultivation area\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/lands/add",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"lands",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Land Document",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "document",
+											"type": "file",
+											"src": "/path/to/land_deed.pdf"
+										},
+										{
+											"key": "land_id",
+											"value": "land123",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/lands/123/documents",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"lands",
+										"123",
+										"documents"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Insurance",
+					"item": [
+						{
+							"name": "List Packages",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/insurance/packages",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"insurance",
+										"packages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Apply for Insurance",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"package_id\": \"pkg123\",\n  \"land_id\": \"land123\",\n  \"start_date\": \"2023-12-01\",\n  \"duration_months\": 12\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/insurance/apply",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"insurance",
+										"apply"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Check Application Status",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/insurance/status/app123",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"insurance",
+										"status",
+										"app123"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Claims",
+					"item": [
+						{
+							"name": "File Claim",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"policy_id\": \"pol123\",\n  \"land_id\": \"land123\",\n  \"damage_type\": \"flood\",\n  \"damage_date\": \"2023-11-15\",\n  \"description\": \"Heavy floods destroyed 50% of crops\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/claims",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"claims"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Claim Evidence",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "evidence",
+											"type": "file",
+											"src": "/path/to/damage_photo.jpg"
+										},
+										{
+											"key": "claim_id",
+											"value": "claim123",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "Photo showing flooded field",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/claims/claim123/evidence",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"claims",
+										"claim123",
+										"evidence"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Notifications",
+					"item": [
+						{
+							"name": "Get Notifications",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/notifications",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"notifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Mark as Read",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"notification_id\": \"notif123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/notifications/mark-read",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"notifications",
+										"mark-read"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Dashboard",
+					"item": [
+						{
+							"name": "Get Dashboard Stats",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/firebase-auth/api/farmers/dashboard/stats",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"firebase-auth",
+										"api",
+										"farmers",
+										"dashboard",
+										"stats"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Farmer Registration",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"full_name\": \"John Doe\",\r\n    \"nic\": \"123456789V\",\r\n    \"email\": \"john@examples.com\",\r\n    \"phone\": \"0712345678\",\r\n    \"password\": \"password123\",\r\n    \"address\": \"123 Farm Road, Colombo\",\r\n    \"language\": \"en\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Farmer Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"john@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Insurance Policies API",
+			"item": [
+				{
+					"name": "Create New Policy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"farmer_id\": \"HWx5Q47rRXR7FL9D0HOc4pqpe4J2\",\r\n  \"crop_type\": \"rice\",\r\n  \"land_size\": 5,\r\n  \"location\": \"Colombo\",\r\n  \"expected_yield\": 1000,\r\n  \"season\": \"yala\",\r\n  \"coverage_type\": \"full\",\r\n  \"start_date\": \"2023-07-01\",\r\n  \"end_date\": \"2023-12-31\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_policies.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_policies.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Policies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_policies.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_policies.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Policy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_policies.php?id=-OTQUwamren6767SyXcU",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_policies.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "-OTQUwamren6767SyXcU"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Policy",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"crop_type\": \"tea\",\r\n  \"land_size\": 6,\r\n  \"status\": \"inactive\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_policies.php?id=-OTQUwamren6767SyXcU",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_policies.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "-OTQUwamren6767SyXcU"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Policy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_policies.php?id=-OTQUwamren6767SyXcU",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_policies.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "-OTQUwamren6767SyXcU"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Insurance Applications API",
+			"item": [
+				{
+					"name": "Create New Application",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"policy_id\": \"-OTQZimttDEeT8nXkwcJ\",\r\n  \"farmer_id\": \"HWx5Q47rRXR7FL9D0HOc4pqpe4J2\",\r\n  \"application_type\": \"new_claim\",\r\n  \"claim_amount\": 5000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_applications.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_applications.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Applications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_applications.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_applications.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Applications for Specific Policy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_applications.php?policy_id=-OTQv6FrJKMNS0yV9Ctz",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_applications.php"
+							],
+							"query": [
+								{
+									"key": "policy_id",
+									"value": "-OTQv6FrJKMNS0yV9Ctz"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Process Application (Approve/Reject)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"status\": \"approved\",\r\n  \"inspector_id\": \"inspector456\",\r\n  \"notes\": \"Approved for inspection\"\r\n}\r\n\r\n\r\n// {\r\n//   \"status\": \"rejected\",\r\n//   \"notes\": \"Incomplete documentation\"\r\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_applications.php?id=APPLICATION_ID",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_applications.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "APPLICATION_ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all insurance applications for a specific farmer",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/farmer_applications.php?farmer_id=pu89qoAhmiTlu3R6x8PDCVeluGK2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"farmer_applications.php"
+							],
+							"query": [
+								{
+									"key": "farmer_id",
+									"value": "pu89qoAhmiTlu3R6x8PDCVeluGK2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all insurance applications for a inspector_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/insurance/insurance_applications.php?inspector_id=-OTTJ0VSl5waPwL3cvkQ",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"insurance",
+								"insurance_applications.php"
+							],
+							"query": [
+								{
+									"key": "inspector_id",
+									"value": "-OTTJ0VSl5waPwL3cvkQ"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Inspectors API",
+			"item": [
+				{
+					"name": "Get All Inspectors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/inspectors/inspectors.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"inspectors",
+								"inspectors.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Available Inspectors (Filtered)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/inspectors.php?status=active&specialization=rice",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"inspectors.php"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active"
+								},
+								{
+									"key": "specialization",
+									"value": "rice"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Inspector",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/inspectors/inspectors.php?id=-OTTJ0VSl5waPwL3cvkQ",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"inspectors",
+								"inspectors.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "-OTTJ0VSl5waPwL3cvkQ"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Inspector",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"example name\",\r\n    \"email\": \"example@gmail.com\",\r\n    \"phone\": \"0704068787\",\r\n    \"license_number\": \"IT102023\",\r\n    \"specialization\": [\"Ex01\", \"Ex02\", \"Ex03\"],\r\n    \"status\": \"active\",\r\n    \"address\": {\r\n        \"street\": \"example street\",\r\n        \"city\": \"example city\",\r\n        \"state\": \"example state\",\r\n        \"zip\": \"10300\",\r\n        \"country\": \"example country\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/inspectors/inspectors.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"inspectors",
+								"inspectors.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Inspector",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"string (required)\",\r\n    \"name\": \"string\",\r\n    \"email\": \"string\",\r\n    \"phone\": \"string\",\r\n    \"license_number\": \"string\",\r\n    \"specialization\": [\"array\", \"of\", \"strings\"],\r\n    \"status\": \"active/inactive\",\r\n    \"address\": {\r\n        \"street\": \"string\",\r\n        \"city\": \"string\",\r\n        \"state\": \"string\",\r\n        \"zip\": \"string\",\r\n        \"country\": \"string\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/inspectors/inspectors.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"inspectors",
+								"inspectors.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Inspector",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"string (required)\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/inspectors/inspectors.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"inspectors",
+								"inspectors.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"chariths615@gmail.com\",\r\n    \"phone\": \"0789621706\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/inspectors/login.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"inspectors",
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Claims By inspector_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/claims/claims.php?inspector_id=-OTV-wL7hirEvYnqmsa0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"claims",
+								"claims.php"
+							],
+							"query": [
+								{
+									"key": "inspector_id",
+									"value": "-OTV-wL7hirEvYnqmsa0"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Land",
+			"item": [
+				{
+					"name": "Get All Lands",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjNiZjA1MzkxMzk2OTEzYTc4ZWM4MGY0MjcwMzM4NjM2NDA2MTBhZGMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGhwLWJhY2tlbmQtZGQ2ZDAiLCJhdWQiOiJwaHAtYmFja2VuZC1kZDZkMCIsImF1dGhfdGltZSI6MTc1MDczMzIxNiwidXNlcl9pZCI6IlcyUlJPMzl5ZmlNbmdYVTI3bGpnMlh1YlAwQTIiLCJzdWIiOiJXMlJSTzM5eWZpTW5nWFUyN2xqZzJYdWJQMEEyIiwiaWF0IjoxNzUwNzMzMjE2LCJleHAiOjE3NTA3MzY4MTYsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJqb2huQGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.nI2oxF_ZWhwEfPP4QHdbfjz3T7wWIEMQFb657LdLjShBfUYmrAQCSqfomLEXZnCPlA1w-rH6fTnGow5PuF2-PVNhOSEuvMtOcd4y1qniJdBeOR_YEI3Mm4IwQx1SZjsDZmKhjvr6wtlDKo594vP4UA4fDzOioSr6ByY5E-AkUh46OXIvwld13ewPL8LzFPtvF-flRvNW0mSKt2Co52oaSUObPBHdCxLboz8loE1mehNr5kMC49SPKUkxIWzZhWlhqBLYF3B6TIUcHrIGltI5EO9dd3KrYLB9u1Tvm3WS3sp8cqgJERB1mt2uwjraOWn6_yp8NDeN_OWI5rTkK_93FA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/lands/list.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"lands",
+								"list.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Land",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjNiZjA1MzkxMzk2OTEzYTc4ZWM4MGY0MjcwMzM4NjM2NDA2MTBhZGMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGhwLWJhY2tlbmQtZGQ2ZDAiLCJhdWQiOiJwaHAtYmFja2VuZC1kZDZkMCIsImF1dGhfdGltZSI6MTc1MDczMzIxNiwidXNlcl9pZCI6IlcyUlJPMzl5ZmlNbmdYVTI3bGpnMlh1YlAwQTIiLCJzdWIiOiJXMlJSTzM5eWZpTW5nWFUyN2xqZzJYdWJQMEEyIiwiaWF0IjoxNzUwNzMzMjE2LCJleHAiOjE3NTA3MzY4MTYsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJqb2huQGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.nI2oxF_ZWhwEfPP4QHdbfjz3T7wWIEMQFb657LdLjShBfUYmrAQCSqfomLEXZnCPlA1w-rH6fTnGow5PuF2-PVNhOSEuvMtOcd4y1qniJdBeOR_YEI3Mm4IwQx1SZjsDZmKhjvr6wtlDKo594vP4UA4fDzOioSr6ByY5E-AkUh46OXIvwld13ewPL8LzFPtvF-flRvNW0mSKt2Co52oaSUObPBHdCxLboz8loE1mehNr5kMC49SPKUkxIWzZhWlhqBLYF3B6TIUcHrIGltI5EO9dd3KrYLB9u1Tvm3WS3sp8cqgJERB1mt2uwjraOWn6_yp8NDeN_OWI5rTkK_93FA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/lands/list.php?id=-OTUrh6r_EbYWOD8KCLG",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"lands",
+								"list.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "-OTUrh6r_EbYWOD8KCLG"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Lands by Farmer UID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjNiZjA1MzkxMzk2OTEzYTc4ZWM4MGY0MjcwMzM4NjM2NDA2MTBhZGMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGhwLWJhY2tlbmQtZGQ2ZDAiLCJhdWQiOiJwaHAtYmFja2VuZC1kZDZkMCIsImF1dGhfdGltZSI6MTc1MTA0MjQzMCwidXNlcl9pZCI6InB1ODlxb0FobWlUbHUzUjZ4OFBEQ1ZlbHVHSzIiLCJzdWIiOiJwdTg5cW9BaG1pVGx1M1I2eDhQRENWZWx1R0syIiwiaWF0IjoxNzUxMDQyNDMwLCJleHAiOjE3NTEwNDYwMzAsImVtYWlsIjoiaG9kQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJob2RAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.f0cabKBdqEC4N-tPXrk-VHmV0XmZSLapuFChoZTuxxeqPJedbGiGHIbTF36CwJaUYA0XfFSdW2Sw4HqUDqDj2uL9AxNWHUiXAx4A9yZGvxhJ0wU4NyyHHObCjjCRrD-pzdNN2LawMuiK_hdiJcW73MDWNu6Fd_5YeBrKJtAfNPbpUpyDCOanqJO1RZWkn4tRot4bohwNfOFgs722K_TEkuDrvkxA2dzCR6oJbL1sNizeu5IdiANTkfYtnQ_6x9yASxB_7t5yiW3Bra_u4Tyx8knnpER4RkynrbpDu6xU7Ctv9cJ7WnzVU78lHAZ0mcGoziw483S-YbUFL-MpgpoNbA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/lands/list.php?farmer_uid=pu89qoAhmiTlu3R6x8PDCVeluGK2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"lands",
+								"list.php"
+							],
+							"query": [
+								{
+									"key": "farmer_uid",
+									"value": "pu89qoAhmiTlu3R6x8PDCVeluGK2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Land",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjNiZjA1MzkxMzk2OTEzYTc4ZWM4MGY0MjcwMzM4NjM2NDA2MTBhZGMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGhwLWJhY2tlbmQtZGQ2ZDAiLCJhdWQiOiJwaHAtYmFja2VuZC1kZDZkMCIsImF1dGhfdGltZSI6MTc1MTA0MjQzMCwidXNlcl9pZCI6InB1ODlxb0FobWlUbHUzUjZ4OFBEQ1ZlbHVHSzIiLCJzdWIiOiJwdTg5cW9BaG1pVGx1M1I2eDhQRENWZWx1R0syIiwiaWF0IjoxNzUxMDQyNDMwLCJleHAiOjE3NTEwNDYwMzAsImVtYWlsIjoiaG9kQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJob2RAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.f0cabKBdqEC4N-tPXrk-VHmV0XmZSLapuFChoZTuxxeqPJedbGiGHIbTF36CwJaUYA0XfFSdW2Sw4HqUDqDj2uL9AxNWHUiXAx4A9yZGvxhJ0wU4NyyHHObCjjCRrD-pzdNN2LawMuiK_hdiJcW73MDWNu6Fd_5YeBrKJtAfNPbpUpyDCOanqJO1RZWkn4tRot4bohwNfOFgs722K_TEkuDrvkxA2dzCR6oJbL1sNizeu5IdiANTkfYtnQ_6x9yASxB_7t5yiW3Bra_u4Tyx8knnpER4RkynrbpDu6xU7Ctv9cJ7WnzVU78lHAZ0mcGoziw483S-YbUFL-MpgpoNbA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"farmer_uid\": \"pu89qoAhmiTlu3R6x8PDCVeluGK2\",\r\n    \"name\": \"Green Valley Farm\",\r\n    \"province\": \"Central\",\r\n    \"district\": \"Kandy\",\r\n    \"size\": 5.5,\r\n    \"coordinates\": \"7.2906,80.6337\",\r\n    \"description\": \"Organic vegetable farm\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/lands/list.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"lands",
+								"list.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Land",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjNiZjA1MzkxMzk2OTEzYTc4ZWM4MGY0MjcwMzM4NjM2NDA2MTBhZGMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGhwLWJhY2tlbmQtZGQ2ZDAiLCJhdWQiOiJwaHAtYmFja2VuZC1kZDZkMCIsImF1dGhfdGltZSI6MTc1MDczMzIxNiwidXNlcl9pZCI6IlcyUlJPMzl5ZmlNbmdYVTI3bGpnMlh1YlAwQTIiLCJzdWIiOiJXMlJSTzM5eWZpTW5nWFUyN2xqZzJYdWJQMEEyIiwiaWF0IjoxNzUwNzMzMjE2LCJleHAiOjE3NTA3MzY4MTYsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJqb2huQGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.nI2oxF_ZWhwEfPP4QHdbfjz3T7wWIEMQFb657LdLjShBfUYmrAQCSqfomLEXZnCPlA1w-rH6fTnGow5PuF2-PVNhOSEuvMtOcd4y1qniJdBeOR_YEI3Mm4IwQx1SZjsDZmKhjvr6wtlDKo594vP4UA4fDzOioSr6ByY5E-AkUh46OXIvwld13ewPL8LzFPtvF-flRvNW0mSKt2Co52oaSUObPBHdCxLboz8loE1mehNr5kMC49SPKUkxIWzZhWlhqBLYF3B6TIUcHrIGltI5EO9dd3KrYLB9u1Tvm3WS3sp8cqgJERB1mt2uwjraOWn6_yp8NDeN_OWI5rTkK_93FA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Updated Farm Name\",\r\n    \"size\": 6.0,\r\n    \"status\": \"inactive\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/lands/list.php?id=-OTUrh6r_EbYWOD8KCLG",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"lands",
+								"list.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "-OTUrh6r_EbYWOD8KCLG"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": " Delete Land",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/lands/list.php?id=-OTUrh6r_EbYWOD8KCLG",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"lands",
+								"list.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "-OTUrh6r_EbYWOD8KCLG"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Damage Claims API",
+			"item": [
+				{
+					"name": "GET All Claims",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/claims/claims.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"claims",
+								"claims.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Create New Claim",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"policy_id\": \"policy123\",\r\n  \"farmer_id\": \"pu89qoAhmiTlu3R6x8PDCVeluGK2\",\r\n  \"land_id\": \"land456\",\r\n  \"damage_type\": \"flood\",\r\n  \"damage_date\": \"2023-06-15\",\r\n  \"description\": \"Heavy rains caused flooding in my paddy fields\",\r\n  \"evidence_files\": [\"flood1.jpg\", \"flood2.jpg\"],\r\n  \"weather_data\": \"weather_screenshot.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/claims/claims.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"claims",
+								"claims.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Claim Status",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"status\": \"approved\",\r\n  \"inspector_id\": \"inspector456\",\r\n  \"notes\": \"Claim approved after field verification\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/claims/claims.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"claims",
+								"claims.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By Farmer ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/farmers/claims/claims.php?farmer_id=pu89qoAhmiTlu3R6x8PDCVeluGK2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"farmers",
+								"claims",
+								"claims.php"
+							],
+							"query": [
+								{
+									"key": "farmer_id",
+									"value": "pu89qoAhmiTlu3R6x8PDCVeluGK2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Notifications ",
+			"item": [
+				{
+					"name": " Get Notifications for a User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/notifications/notification.php?user_id=pu89qoAhmiTlu3R6x8PDCVeluGK2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"notifications",
+								"notification.php"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "pu89qoAhmiTlu3R6x8PDCVeluGK2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/notifications/notification.php?id=-NxYZab123",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"notifications",
+								"notification.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "-NxYZab123"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unread Notifications Count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/firebase-auth/api/notifications/notification.php?user_id=pu89qoAhmiTlu3R6x8PDCVeluGK2&is_read=false",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"firebase-auth",
+								"api",
+								"notifications",
+								"notification.php"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "pu89qoAhmiTlu3R6x8PDCVeluGK2"
+								},
+								{
+									"key": "is_read",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": " Add Land",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImE0YTEwZGVjZTk4MzY2ZDZmNjNlMTY3Mjg2YWU5YjYxMWQyYmFhMjciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGhwLWJhY2tlbmQtZGQ2ZDAiLCJhdWQiOiJwaHAtYmFja2VuZC1kZDZkMCIsImF1dGhfdGltZSI6MTc0OTg0NDAxMiwidXNlcl9pZCI6IlcyUlJPMzl5ZmlNbmdYVTI3bGpnMlh1YlAwQTIiLCJzdWIiOiJXMlJSTzM5eWZpTW5nWFUyN2xqZzJYdWJQMEEyIiwiaWF0IjoxNzQ5ODQ0MDEyLCJleHAiOjE3NDk4NDc2MTIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJqb2huQGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.UwuMyenEh9lPJUrWxD9jRkW3pQdnSgwR6TTbW474Bqyct6bJv_NU3zMsAUiePW8w1ScitPl8uKDEfAiqoBNosPvSDvpNZ1FPxvfSTBRTShTDH_f4rp1INJTJ7SZHuNBhW67IPKtUd89FqV-Kw3ijCpGnvQOQ1mLcoaG7gAWzDbhyE_tLL-Hk4DMHCzUhZZXYuVJJOsbIBrlTPRQ3MtcrA8YxnkCDSupIKpPKobmCjDNMJAvpvwryJUN9ddlyJLO2VclMk9x4ax8JcRbROFCgigt6MILL1SP8a8CTwm75bgzYHqx-9UTyQcbEqYwgz-cdSptF1KGbZgJr8lh5CP-_IA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "My Paddy Field",
+							"type": "text"
+						},
+						{
+							"key": "province",
+							"value": "Western",
+							"type": "text"
+						},
+						{
+							"key": "district",
+							"value": "Colombo",
+							"type": "text"
+						},
+						{
+							"key": "size",
+							"value": "2.5",
+							"type": "text"
+						},
+						{
+							"key": "document",
+							"type": "file",
+							"src": "/C:/Users/chari/Downloads/Charitha.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost/firebase-auth/api/farmers/lands/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"firebase-auth",
+						"api",
+						"farmers",
+						"lands",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/C:/Users/chari/Downloads/notifications-icon.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost/firebase-auth/api/upload.php",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"firebase-auth",
+						"api",
+						"upload.php"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
