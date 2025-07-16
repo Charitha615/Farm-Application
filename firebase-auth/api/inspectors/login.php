@@ -15,7 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $requestData = json_decode(file_get_contents('php://input'), true);
         
-        // Get the collection name from query parameter or default to 'users'
+        // Validate input
+        if (empty($requestData['email']) || empty($requestData['password'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Email and password are required']);
+            exit;
+        }
+        
+        // Get the collection name from query parameter or default to 'inspectors'
         $collection = $_GET['collection'] ?? 'inspectors';
         
         // Check if user exists in the specified collection
@@ -24,24 +31,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $foundUser = null;
 
         foreach ($users as $id => $user) {
-            if (isset($user['email']) && $user['email'] === $requestData['email'] 
-                && isset($user['phone']) && $user['phone'] === $requestData['phone']) {
-                $foundUser = ['id' => $id] + $user;
-                break;
+            if (isset($user['email']) && $user['email'] === $requestData['email']) {
+                // Verify password
+                if (isset($user['password']) && password_verify($requestData['password'], $user['password'])) {
+                    $foundUser = ['id' => $id] + $user;
+                    // Remove password from response
+                    unset($foundUser['password']);
+                    break;
+                }
             }
         }
 
         if ($foundUser) {
             http_response_code(200);
             echo json_encode([
-                'exists' => true,
+                'success' => true,
                 'user' => $foundUser
             ]);
         } else {
-            http_response_code(200);
+            http_response_code(401);
             echo json_encode([
-                'exists' => false,
-                'message' => 'No user found with these credentials'
+                'success' => false,
+                'message' => 'Invalid email or password'
             ]);
         }
 

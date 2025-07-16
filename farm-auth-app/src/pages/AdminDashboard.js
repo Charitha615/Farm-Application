@@ -3,6 +3,7 @@ import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import InspectorManagement from './InspectorManagement';
 import AdminLandManagement from './AdminLandManagement';
 import AdminClaimManagement from './AdminClaimManagement';
+import AdminSupport from './AdminSupport';
 import {
   BarChart,
   Bar,
@@ -86,7 +87,7 @@ const DashboardOverview = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch all stats in parallel
         const [policiesRes, farmersRes, inspectorsRes, claimsRes] = await Promise.all([
           axios.get(INSURANCE_URL),
@@ -120,15 +121,15 @@ const DashboardOverview = () => {
     // Helper function to process data by month
     const processDataByMonth = (data) => {
       if (!data) return [];
-      
+
       const monthlyCounts = Array(12).fill(0);
-      
+
       Object.values(data).forEach(item => {
         const date = item.created_at ? new Date(item.created_at) : new Date();
         const month = date.getMonth();
         monthlyCounts[month]++;
       });
-      
+
       return monthlyCounts.map((count, index) => ({
         name: new Date(0, index).toLocaleString('default', { month: 'short' }),
         count
@@ -144,9 +145,9 @@ const DashboardOverview = () => {
       <Spin spinning={loading}>
         <div className="stats-grid">
           <Card>
-            <Statistic 
-              title="Total Policies" 
-              value={stats.totalPolicies} 
+            <Statistic
+              title="Total Policies"
+              value={stats.totalPolicies}
               prefix={<FileTextOutlined />}
             />
             <div style={{ marginTop: 16 }}>
@@ -154,9 +155,9 @@ const DashboardOverview = () => {
             </div>
           </Card>
           <Card>
-            <Statistic 
-              title="Active Claims" 
-              value={stats.activeClaims} 
+            <Statistic
+              title="Active Claims"
+              value={stats.activeClaims}
               prefix={<AlertOutlined />}
             />
             <div style={{ marginTop: 16 }}>
@@ -164,9 +165,9 @@ const DashboardOverview = () => {
             </div>
           </Card>
           <Card>
-            <Statistic 
-              title="Registered Farmers" 
-              value={stats.registeredFarmers} 
+            <Statistic
+              title="Registered Farmers"
+              value={stats.registeredFarmers}
               prefix={<UserOutlined />}
             />
             <div style={{ marginTop: 16 }}>
@@ -174,9 +175,9 @@ const DashboardOverview = () => {
             </div>
           </Card>
           <Card>
-            <Statistic 
-              title="Available Inspectors" 
-              value={stats.availableInspectors} 
+            <Statistic
+              title="Available Inspectors"
+              value={stats.availableInspectors}
               prefix={<TeamOutlined />}
             />
             <div style={{ marginTop: 16 }}>
@@ -186,7 +187,7 @@ const DashboardOverview = () => {
         </div>
 
         <Divider orientation="left">Monthly Statistics</Divider>
-        
+
         <div className="chart-container">
           <Card title="Insurance Policies by Month" style={{ marginBottom: 24 }}>
             <ResponsiveContainer width="100%" height={300}>
@@ -216,7 +217,7 @@ const DashboardOverview = () => {
         </div>
 
         <Divider orientation="left">Recent Activity</Divider>
-        
+
         <Card>
           <Timeline mode="alternate">
             <Timeline.Item color="green">New policy created for farmer ID: F10025</Timeline.Item>
@@ -522,12 +523,16 @@ const InsuranceModal = ({ visible, onCancel, insurance, onSave, loading, farmers
           rules={[{ required: true, message: 'Please select crop type!' }]}
         >
           <Select>
-            <Option value="rice">Rice</Option>
-            <Option value="tea">Tea</Option>
-            <Option value="rubber">Rubber</Option>
-            <Option value="coconut">Coconut</Option>
-            <Option value="vegetables">Vegetables</Option>
-            <Option value="fruits">Fruits</Option>
+            <Option value="basmati">Basmati Rice</Option>
+            <Option value="jasmine">Jasmine Rice</Option>
+            <Option value="brown">Brown Rice</Option>
+            <Option value="white">White Rice</Option>
+            <Option value="arborio">Arborio Rice (Risotto)</Option>
+            <Option value="sticky">Sticky Rice</Option>
+            <Option value="black">Black Rice (Forbidden Rice)</Option>
+            <Option value="red">Red Rice</Option>
+            <Option value="wild">Wild Rice</Option>
+            <Option value="sushi">Sushi Rice</Option>
           </Select>
         </Form.Item>
 
@@ -1060,6 +1065,7 @@ const AdminDashboard = () => {
     { key: 'claims', icon: <AlertOutlined />, label: 'Claim Management' },
     { key: 'inspectors', icon: <TeamOutlined />, label: 'Inspector Management' },
     { key: 'notifications', icon: <BellOutlined />, label: 'Notifications' },
+    { key: 'contact', icon: <BellOutlined />, label: 'Contact' },
     // { key: 'reports', icon: <BarChartOutlined />, label: 'Reports' }
   ];
 
@@ -1097,6 +1103,7 @@ const AdminDashboard = () => {
             <Route path="inspectors" element={<InspectorManagement />} />
             <Route path="adminland" element={<AdminLandManagement />} />
             <Route path="claims" element={<AdminClaimManagement />} />
+            <Route path="contact" element={<AdminSupport />} />
             {/* Add other routes as needed */}
           </Routes>
         </Content>

@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 {
     "name": "John Doe",
     "email": "john@example.com",
+    "password": "hashed_password",
     "phone": "+1234567890",
     "license_number": "INS12345",
     "specialization": ["construction", "electrical"],
@@ -30,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 */
 
-// GET all inspectors
+// GET all inspectors (without passwords)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_GET['id'])) {
     try {
         $inspectorsRef = $database->getReference('inspectors');
@@ -40,8 +41,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_GET['id'])) {
             $allInspectors = [];
         }
         
+        // Remove passwords from response
+        $sanitizedInspectors = [];
+        foreach ($allInspectors as $id => $inspector) {
+            $sanitizedInspector = $inspector;
+            unset($sanitizedInspector['password']);
+            $sanitizedInspectors[$id] = $sanitizedInspector;
+        }
+        
         http_response_code(200);
-        echo json_encode($allInspectors);
+        echo json_encode($sanitizedInspectors);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -49,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_GET['id'])) {
     exit;
 }
 
-// GET single inspector by ID
+// GET single inspector by ID (without password)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
     try {
         $inspectorId = $_GET['id'];
@@ -62,6 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
             exit;
         }
         
+        // Remove password from response
+        unset($inspector['password']);
+        
         http_response_code(200);
         echo json_encode(['id' => $inspectorId] + $inspector);
     } catch (Exception $e) {
@@ -71,22 +83,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
     exit;
 }
 
-// POST - Create a new inspector
+// POST - Create a new inspector with password
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $requestData = json_decode(file_get_contents('php://input'), true);
         
         // Validate input
-        if (empty($requestData['name']) || empty($requestData['email'])) {
+        if (empty($requestData['name']) || empty($requestData['email']) || empty($requestData['password'])) {
             http_response_code(400);
-            echo json_encode(['error' => 'Name and email are required']);
+            echo json_encode(['error' => 'Name, email and password are required']);
             exit;
         }
+        
+        // Check if email already exists
+        $inspectorsRef = $database->getReference('inspectors');
+        $snapshot = $inspectorsRef->orderByChild('email')->equalTo($requestData['email'])->getSnapshot();
+        
+        if ($snapshot->hasChildren()) {
+            http_response_code(409);
+            echo json_encode(['error' => 'Email already exists']);
+            exit;
+        }
+        
+        // Hash password
+        $hashedPassword = password_hash($requestData['password'], PASSWORD_DEFAULT);
         
         // Set default values if not provided
         $inspectorData = [
             'name' => $requestData['name'],
             'email' => $requestData['email'],
+            'password' => $hashedPassword,
             'phone' => $requestData['phone'] ?? '',
             'license_number' => $requestData['license_number'] ?? '',
             'specialization' => $requestData['specialization'] ?? [],
@@ -107,9 +133,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Push data to Firebase
-        $inspectorsRef = $database->getReference('inspectors');
         $newInspectorRef = $inspectorsRef->push();
         $newInspectorRef->set($inspectorData);
+        
+        // Remove password from response
+        unset($inspectorData['password']);
         
         http_response_code(201);
         echo json_encode([
@@ -124,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// PUT - Update an inspector
+// PUT - Update an inspector (with optional password update)
 if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     try {
         $requestData = json_decode(file_get_contents('php://input'), true);
@@ -156,6 +184,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             'updated_at' => date('Y-m-d H:i:s')
         ];
         
+        // Update password if provided
+        if (!empty($requestData['password'])) {
+            $updateData['password'] = password_hash($requestData['password'], PASSWORD_DEFAULT);
+        } else {
+            $updateData['password'] = $currentData['password'];
+        }
+        
         // Handle address update
         if (isset($requestData['address'])) {
             $currentAddress = $currentData['address'] ?? [];
@@ -172,6 +207,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         
         // Update the inspector
         $inspectorRef->update($updateData);
+        
+        // Remove password from response
+        unset($updateData['password']);
         
         http_response_code(200);
         echo json_encode([
@@ -207,10 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
             exit;
         }
         
-        // Soft delete (recommended) - set status to inactive
-        // $inspectorRef->update(['status' => 'inactive', 'updated_at' => date('Y-m-d H:i:s')]);
-        
-        // Or hard delete:
+        // Hard delete
         $inspectorRef->remove();
         
         http_response_code(200);

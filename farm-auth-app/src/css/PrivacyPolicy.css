@@ -1,0 +1,132 @@
+/* Privacy Policy Page Styles */
+.privacy-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+.privacy-header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  color: #4285f4;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}
+
+.back-button svg {
+  margin-right: 5px;
+}
+
+.privacy-header h1 {
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.effective-date {
+  color: #7f8c8d;
+  font-style: italic;
+  margin-top: 0;
+}
+
+.privacy-content {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.privacy-intro {
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+.privacy-section {
+  margin-bottom: 30px;
+}
+
+.privacy-section h2 {
+  color: #2c3e50;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.privacy-section h2 svg {
+  margin-right: 10px;
+  color: #27ae60;
+}
+
+.privacy-section h3 {
+  color: #2c3e50;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.privacy-section ul {
+  padding-left: 20px;
+}
+
+.privacy-section li {
+  margin-bottom: 8px;
+}
+
+.privacy-section strong {
+  color: #2c3e50;
+}
+
+.contact-section address {
+  font-style: normal;
+  margin-top: 15px;
+}
+
+.contact-section a {
+  color: #4285f4;
+  text-decoration: none;
+}
+
+.contact-section a:hover {
+  text-decoration: underline;
+}
+
+.privacy-footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .privacy-container {
+    padding: 15px;
+  }
+  
+  .privacy-content {
+    padding: 20px;
+  }
+  
+  .back-button {
+    position: static;
+    margin-bottom: 15px;
+    display: inline-block;
+  }
+}

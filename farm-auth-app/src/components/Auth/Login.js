@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaSignInAlt, FaExclamationCircle, FaSpinner, FaUserTie, FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaSignInAlt, FaExclamationCircle, FaSpinner, FaUserTie, FaUser, FaEye, FaEyeSlash, FaCheck } from 'react-icons/fa';
 import '../../css/Login.css';
 
 const Login = () => {
@@ -14,10 +14,28 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  
+  // State for "I'm not a robot" checkbox
+  const [isRobotChecked, setIsRobotChecked] = useState(false);
+  const [showRobotCheckbox, setShowRobotCheckbox] = useState(false);
+  const [robotCheckboxHover, setRobotCheckboxHover] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    // First show the robot checkbox if not already shown
+    if (!showRobotCheckbox) {
+      setShowRobotCheckbox(true);
+      return;
+    }
+    
+    // If checkbox is shown but not checked, show error
+    if (showRobotCheckbox && !isRobotChecked) {
+      setError('Please verify that you are not a robot');
+      return;
+    }
+
     setIsLoading(true);
 
     // 1. Check for hardcoded admin credentials
@@ -44,13 +62,14 @@ const Login = () => {
           },
           body: JSON.stringify({
             email: email,
-            phone: phone
+            password: phone
           })
         });
 
         const data = await response.json();
+        console.log(data.success);
 
-        if (data.exists) {
+        if (data.success) {
           localStorage.setItem('inspector', JSON.stringify(data.user));
           navigate('/inspector/dashboard');
         } else {
@@ -71,6 +90,13 @@ const Login = () => {
       } finally {
         setIsLoading(false);
       }
+    }
+  };
+
+  const handleRobotCheckboxClick = () => {
+    setIsRobotChecked(!isRobotChecked);
+    if (!isRobotChecked) {
+      setError(''); // Clear error if user checks the box
     }
   };
 
@@ -125,14 +151,14 @@ const Login = () => {
 
           {userType === 'inspector' ? (
             <div className="form-group">
-              <label htmlFor="phone">Phone Number</label>
+              <label htmlFor="phone">Password</label>
               <div className="input-with-icon">
                 <input
                   type="tel"
                   id="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Enter your phone number"
+                  placeholder="Enter your password"
                   required
                   className={error ? 'input-error' : ''}
                 />
@@ -163,6 +189,33 @@ const Login = () => {
             </div>
           )}
 
+          {/* "I'm not a robot" checkbox - shown only after first click */}
+          {showRobotCheckbox && (
+            <div className="robot-checkbox-container">
+              <div 
+                className={`robot-checkbox ${isRobotChecked ? 'checked' : ''} ${robotCheckboxHover ? 'hover' : ''}`}
+                onClick={handleRobotCheckboxClick}
+                onMouseEnter={() => setRobotCheckboxHover(true)}
+                onMouseLeave={() => setRobotCheckboxHover(false)}
+              >
+                <div className="robot-checkbox-inner">
+                  {isRobotChecked && <FaCheck className="check-icon" />}
+                </div>
+                <span>I'm not a robot</span>
+              </div>
+              <div className="robot-checkbox-footer">
+                <div className="robot-checkbox-logo">
+                  <div className="robot-checkbox-logo-text">reCAPTCHA</div>
+                  <div className="robot-checkbox-logo-links">
+                    <span>Privacy</span>
+                    <span>•</span>
+                    <span>Terms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
             className="login-button"
@@ -176,7 +229,7 @@ const Login = () => {
             ) : (
               <>
                 <FaSignInAlt />
-                <span>Login</span>
+                <span>{showRobotCheckbox && !isRobotChecked ? 'Verify' : 'Login'}</span>
               </>
             )}
           </button>
